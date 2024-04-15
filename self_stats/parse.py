@@ -27,7 +27,8 @@ for entry in entries:
     date_text = entry.find('br').next_sibling.strip() if entry.find('br') else "No date found"
     
     # Extracting coordinates
-    location_anchor = entry.find_next_sibling('div').find('a', href=re.compile("maps")) if entry.find_next_sibling('div') else None
+    # Assuming that the coordinates div is another entry somewhere below the current div
+    location_anchor = soup.find('a', href=re.compile("maps"), text="this general area")
     if location_anchor:
         location_url = location_anchor['href']
         coordinates = re.search(r'center=([0-9.-]+),([0-9.-]+)', location_url)

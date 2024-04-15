@@ -3,14 +3,14 @@ import re
 import csv
 
 # Path to the file
-file_path = "data/.01_activity.html"
+file_path = "data/activity.html"
 
 # Reading the HTML content from the file
 with open(file_path, 'r', encoding='utf-8') as file:
     html_content = file.read()
 
-# Parsing the HTML
-soup = BeautifulSoup(html_content, 'html.parser')
+# Parsing the HTML with lxml for better performance
+soup = BeautifulSoup(html_content, 'lxml')
 
 # Find all relevant divs containing the search information
 entries = soup.find_all('div', class_="content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1")
@@ -23,11 +23,14 @@ for entry in entries:
     search_anchor = entry.find('a', href=True)
     search_text = search_anchor.text.strip() if search_anchor else "No search text found"
     
-    # Extracting date
-    date_text = entry.find('br').next_sibling.strip() if entry.find('br') else "No date found"
+    # Extracting date, with improved error handling
+    date_br = entry.find('br')
+    if date_br and date_br.next_sibling:
+        date_text = date_br.next_sibling.strip() if isinstance(date_br.next_sibling, str) else "No date found"
+    else:
+        date_text = "No date found"
     
     # Extracting coordinates
-    # Assuming that the coordinates div is another entry somewhere below the current div
     location_anchor = soup.find('a', href=re.compile("maps"), text="this general area")
     if location_anchor:
         location_url = location_anchor['href']
@@ -44,7 +47,7 @@ for entry in entries:
     data.append([search_text, date_text, latitude, longitude])
 
 # Writing the data to a CSV file
-csv_file_path = 'data/extracted_data.csv'
+csv_file_path = 'data/full_extracted_data.csv'
 with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['Search Text', 'Date of Search', 'Latitude', 'Longitude'])  # Writing headers

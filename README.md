@@ -1,8 +1,8 @@
-# SelfStats
+![Splash Image](images/splash.jpg)
 
-# Google Takeout Data Insights Visualizer 📊
+# **Self Stats** - Google Takeout Data Insights Visualizer 📊
 
-Welcome to the **Google Takeout Data Insights Visualizer**! This Python package revolutionizes how you interact with your personal Google Analytics data extracted via Google Takeout. By offering eye-catching, interactive visualizations, this tool helps you gain deep insights into your digital footprint with Google services. Whether you're a data enthusiast or simply curious about your online habits, this tool provides valuable perspectives into your personal analytics data.
+Welcome to **Self Stats Google Takeout Data Insights Visualizer**! This Python package revolutionizes how you interact with your personal Google Analytics data extracted via Google Takeout. By offering eye-catching, interactive visualizations, this tool helps you gain deep insights into your digital footprint with Google services. Whether you're a data enthusiast or simply curious about your online habits, this tool provides valuable perspectives into your personal analytics data.
 
 ## Features 🌟
 

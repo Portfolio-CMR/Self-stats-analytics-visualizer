@@ -33,10 +33,12 @@ pip install takeout-insights-visualizer
 #### Downloading Your Data from Google Takeout
 
 1. **Visit Google Takeout**:
+
    - Open your web browser and go to [Google Takeout](https://takeout.google.com/).
    - Google Takeout allows you to export data from your Google account products.
 
 2. **Select Your Data**:
+
    - Choose the Google products you want data from. For Analytics, select "Google Analytics".
    - You can customize the archive format and the maximum size of the archive.
 
@@ -47,7 +49,8 @@ pip install takeout-insights-visualizer
 #### Setting Up the Visualizer
 
 1. **Prepare Your Data**:
-   - After extracting your data, place the relevant Google Analytics JSON or CSV files into the `data` directory of this tool.
+
+   - After extracting your data, place the relevant Google Analytics HTML file into the `data` directory of this tool.
 
 2. **Configuration**:
    - Modify any necessary settings in `config.py` to customize how data is processed and visualized.

@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import re
+import csv
 
 # Path to the file
 file_path = "data/.01_activity.html"
@@ -11,31 +12,42 @@ with open(file_path, 'r', encoding='utf-8') as file:
 # Parsing the HTML
 soup = BeautifulSoup(html_content, 'html.parser')
 
-# Extracting search text
-search_anchor = soup.find('a', href=True)
-search_text = search_anchor.text.strip() if search_anchor else "No search text found"
+# Find all relevant divs containing the search information
+entries = soup.find_all('div', class_="content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1")
 
-# Extracting date using targeted text extraction
-date_div = soup.find('div', class_="content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1")
-if date_div:
-    # Using regex to find date pattern, including handling non-standard whitespace
-    date_text = date_div.find('br').next_sibling.strip() if date_div.find('br') else "No date found"
-else:
-    date_text = "No date found"
+# List to store each entry's data
+data = []
 
-# Extracting coordinates
-location_anchor = soup.find('a', href=re.compile("maps"))
-if location_anchor:
-    location_url = location_anchor['href']
-    coordinates = re.search(r'center=([0-9.-]+),([0-9.-]+)', location_url)
-    if coordinates:
-        latitude = coordinates.group(1)
-        longitude = coordinates.group(2)
+for entry in entries:
+    # Extracting search text
+    search_anchor = entry.find('a', href=True)
+    search_text = search_anchor.text.strip() if search_anchor else "No search text found"
+    
+    # Extracting date
+    date_text = entry.find('br').next_sibling.strip() if entry.find('br') else "No date found"
+    
+    # Extracting coordinates
+    location_anchor = entry.find_next_sibling('div').find('a', href=re.compile("maps")) if entry.find_next_sibling('div') else None
+    if location_anchor:
+        location_url = location_anchor['href']
+        coordinates = re.search(r'center=([0-9.-]+),([0-9.-]+)', location_url)
+        if coordinates:
+            latitude = coordinates.group(1)
+            longitude = coordinates.group(2)
+        else:
+            latitude, longitude = "No coordinates", "No coordinates"
     else:
         latitude, longitude = "No coordinates", "No coordinates"
-else:
-    latitude, longitude = "No coordinates", "No coordinates"
+    
+    # Append the collected data for this entry to the list
+    data.append([search_text, date_text, latitude, longitude])
 
-print("Search Text:", search_text)
-print("Date of Search:", date_text)
-print("Location Coordinates: Latitude {}, Longitude {}".format(latitude, longitude))
+# Writing the data to a CSV file
+csv_file_path = 'data/extracted_data.csv'
+with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['Search Text', 'Date of Search', 'Latitude', 'Longitude'])  # Writing headers
+    writer.writerows(data)
+
+# Output message confirming data extraction
+print("Data extraction complete. Results saved to 'extracted_data.csv'.")

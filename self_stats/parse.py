@@ -1,49 +1,41 @@
-import html5lib
-import lxml.etree as ET
-import requests
-import io  # Import the io module
+from bs4 import BeautifulSoup
+import re
 
-def preprocess_html_to_xml(html_content):
-    # Parse the HTML with html5lib, which handles malformed HTML well
-    document = html5lib.parse(html_content, namespaceHTMLElements=False)
-    # Serialize the parsed HTML back to a well-formed XML string, now keeping as bytes
-    return html5lib.serialize(document, encoding='utf-8')
+# Path to the file
+file_path = "data/.01_activity.html"
 
-def parse_html(file_path):
-    # Read and preprocess the HTML file
-    with open(file_path, 'r', encoding='utf-8') as file:
-        html_content = file.read()
-    xml_content = preprocess_html_to_xml(html_content)
+# Reading the HTML content from the file
+with open(file_path, 'r', encoding='utf-8') as file:
+    html_content = file.read()
 
-    # Convert the XML content bytes to a file-like object
-    xml_file = io.BytesIO(xml_content)
+# Parsing the HTML
+soup = BeautifulSoup(html_content, 'html.parser')
 
-    # Now parse the well-formed XML content
-    context = ET.iterparse(xml_file, events=("end",), tag="div")
-    data = {'search_text': None, 'date': None, 'coordinates': None}
+# Extracting search text
+search_anchor = soup.find('a', href=True)
+search_text = search_anchor.text.strip() if search_anchor else "No search text found"
 
-    for event, elem in context:
-        if 'content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1' in elem.get('class', ''):
-            # Extract the search text and date
-            data['search_text'] = elem.xpath(".//a/text()")[0].strip()
-            data['date'] = elem.xpath(".//text()")[-1].strip()
-        elif 'content-cell mdl-cell mdl-cell--12-col mdl-typography--caption' in elem.get('class', ''):
-            # Extract the location coordinates from the link
-            link = elem.xpath(".//a[contains(@href, 'maps')]/@href")[0]
-            params = requests.utils.urlparse(link).query
-            for param in params.split('&'):
-                if 'center' in param:
-                    data['coordinates'] = param.split('=')[1]
-                    break
+# Extracting date using targeted text extraction
+date_div = soup.find('div', class_="content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1")
+if date_div:
+    # Using regex to find date pattern, including handling non-standard whitespace
+    date_text = date_div.find('br').next_sibling.strip() if date_div.find('br') else "No date found"
+else:
+    date_text = "No date found"
 
-        # Clear the element to save memory
-        elem.clear()
-        while elem.getprevious() is not None:
-            del elem.getparent()[0]
+# Extracting coordinates
+location_anchor = soup.find('a', href=re.compile("maps"))
+if location_anchor:
+    location_url = location_anchor['href']
+    coordinates = re.search(r'center=([0-9.-]+),([0-9.-]+)', location_url)
+    if coordinates:
+        latitude = coordinates.group(1)
+        longitude = coordinates.group(2)
+    else:
+        latitude, longitude = "No coordinates", "No coordinates"
+else:
+    latitude, longitude = "No coordinates", "No coordinates"
 
-    return data
-
-# Specify the file path here
-file_path = 'data/.01_activity.html'
-result = parse_html(file_path)
-print(result)
+print("Search Text:", search_text)
+print("Date of Search:", date_text)
+print("Location Coordinates: Latitude {}, Longitude {}".format(latitude, longitude))

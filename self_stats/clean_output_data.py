@@ -29,7 +29,7 @@ def remove_invisible_characters(text: str, compiled_pattern: re.Pattern) -> str:
     Returns:
     str: The cleaned text string without invisible characters.
     """
-    return compiled_pattern.sub('', text).strip()
+    return compiled_pattern.sub(' ', text).strip()
 
 def remove_timezone(date_str: str) -> str:
     """
@@ -41,7 +41,7 @@ def remove_timezone(date_str: str) -> str:
     Returns:
     str: The date string with timezone abbreviation removed.
     """
-    pattern = re.compile(r'(?<=AM|PM)([A-Z]{2,4})$')
+    pattern = re.compile(r'(?<=AM|PM)\s*([A-Z]{2,4})$')
     date_str_no_tz = pattern.sub('', date_str).strip()  # Remove the timezone string from the date_str for parsing
     return date_str_no_tz
 
@@ -57,7 +57,7 @@ def parse_date(date_str: str) -> datetime:
     """
     date_str_no_tz = remove_timezone(date_str)
     try:
-        return datetime.strptime(date_str_no_tz, '%b%d,%Y,%I:%M:%S%p')
+        return datetime.strptime(date_str_no_tz, '%b %d, %Y, %I:%M:%S %p')
     except ValueError:
         return date_str_no_tz
 

@@ -85,4 +85,4 @@ For support, feature requests, or to report bugs, please use the repository's is
 
 ## Why Choose Google Takeout Data Insights Visualizer?
 
-Our tool not only visualizes your data from Google Takeout but also provides a powerful platform to uncover and understand personal trends and usage statistics, empowering you with knowledge to make informed decisions about your digital privacy and online habits.
+Our tool not only visualizes your data from Google Takeout but also provides a powerful platform to uncover and understand personal trends and usage statistics, empowering you with the knowledge to make informed decisions about your digital privacy and online habits.

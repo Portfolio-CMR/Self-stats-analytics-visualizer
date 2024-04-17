@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import ruptures as rpt
 import plotly.express as px
 from dash import Dash, html, dcc
 from dash.dependencies import Input, Output
@@ -32,15 +33,39 @@ app.layout = html.Div([
     Output('stored-data', 'data'),
     [Input('interval-component', 'n_intervals')]
 )
+
 def load_data(n):
     df = pd.read_csv(CSV_FILE_PATH)
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     df = df.dropna(subset=['Date'])
+
+    # Bin data by day and count the number of entries per day
+    df['Date'] = df['Date'].dt.date
+    daily_counts = df.groupby('Date').size()
+
+    # Convert the daily counts to a 2D array for ruptures
+    data = daily_counts.values.reshape(-1, 1)
+
+    # Use the Binseg algorithm to find the changepoint in the daily counts
+    algo = rpt.Binseg(model='l2').fit(data)
+    result = algo.predict(n_bkps=1)
+
+    # If a changepoint was found, determine its date
+    if result:
+        changepoint_index = result[0] - 1
+        changepoint_date = daily_counts.index[changepoint_index]
+    else:
+        # If no changepoint is found, default to the earliest date
+        changepoint_date = daily_counts.index.min()
+
+    # Filter the DataFrame to only include data from after the changepoint
+    df = df[df['Date'] >= changepoint_date]
+
     return df.to_json(date_format='iso', orient='split')
 
 # Assuming that 'num_bins' is the desired number of bins when fully zoomed out
 # You can adjust 'num_bins' based on your dataset and preference
-num_bins = 30
+num_bins = 20
 
 @app.callback(
     Output('time-series-chart', 'figure'),

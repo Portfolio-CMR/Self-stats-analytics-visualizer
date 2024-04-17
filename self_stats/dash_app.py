@@ -26,8 +26,11 @@ def update_graph(n):
     # Read the data from CSV
     df = pd.read_csv(CSV_FILE_PATH)
 
-    # Ensure 'Date' is in datetime format
-    df['Date'] = pd.to_datetime(df['Date'])
+    # Ensure 'Date' is in datetime format and coerce invalid dates to NaT
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+
+    # Remove rows where Date is NaT
+    df = df.dropna(subset=['Date'])
 
     # Create a histogram of entries over time
     fig = px.histogram(df, x='Date', nbins=50, title="Frequency of Entries Over Time")

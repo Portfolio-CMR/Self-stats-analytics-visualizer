@@ -50,7 +50,12 @@ pip install takeout-insights-visualizer
 
 1. **Prepare Your Data**:
 
-   - After extracting your data, place the relevant Google Analytics HTML file into the `data` directory of this tool.
+   - After extracting your data, place the relevant Google Analytics HTML file(s) in a chosen directory.
+   - The package will detect specific filenames automatically so ensure they are correctly named:
+     - "watch-history.html": initiates YouTube watch history processing.
+     - "MyActivity": initiates search history processing.
+   - The package will ask you to specify the directory with the data.
+   - Processed files will be populated in the chosen directory.
 
 2. **Configuration**:
    - Modify any necessary settings in `config.py` to customize how data is processed and visualized.
@@ -74,6 +79,18 @@ Choose the analytics files and types of visualizations through the command line 
 ## Contributing 🤝
 
 We encourage contributions from the community! Please read our `CONTRIBUTING.md` for guidelines on how to participate in developing this tool further.
+
+### **Data Privacy Disclaimer**
+
+While the **Self Stats Google Takeout Data Insights Visualizer** offers powerful insights into your personal Google Analytics data, it's important to handle your data with care. Here are some precautions we strongly advise:
+
+- **Sensitive Information**: Your Google Takeout archive may contain sensitive personal information. Ensure you securely handle and store this data to prevent unauthorized access.
+- **Data Security**: Only use this tool on devices you trust, within secure environments. Avoid using public or shared computers where data might be compromised.
+- **Privacy Settings**: Regularly review your privacy settings on Google and other online platforms to manage what data is collected about you.
+- **Data Sharing**: Be cautious about sharing your insights and visualizations. They could inadvertently reveal personal information about you or your habits.
+- **Legal Compliance**: Ensure your use of data complies with local data protection laws and regulations, including GDPR, if applicable.
+
+By using this tool, you agree to do so at your own risk. The developers of the **Self Stats Google Takeout Data Insights Visualizer** are not responsible for any data breaches or privacy violations that may occur from improper handling of your data. Always prioritize your data privacy and use this tool responsibly.
 
 ## License
 

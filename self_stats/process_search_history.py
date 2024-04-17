@@ -1,19 +1,8 @@
-from bs4 import BeautifulSoup
 import re
+from parse import parse_html, extract_div
+from input_output import read_file, save_to_csv
 
-def parse_html(html_content):
-    """
-    Parses the provided HTML content using BeautifulSoup and returns the parsed soup object.
-    
-    Args:
-    - html_content (str): String containing HTML content.
-    
-    Returns:
-    - BeautifulSoup object of the parsed HTML.
-    """
-    return BeautifulSoup(html_content, 'lxml')
-
-def extract_data(soup):
+def extract_search_data(entries, soup):
     """
     Extracts search text, date, and coordinates from a BeautifulSoup object.
     
@@ -23,7 +12,6 @@ def extract_data(soup):
     Returns:
     - list of lists containing extracted data.
     """
-    entries = soup.find_all('div', class_="content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1")
     data = []
     for entry in entries:
         search_text = extract_search_text(entry)
@@ -77,3 +65,16 @@ def extract_coordinates(soup):
         if coordinates:
             return coordinates.group(1), coordinates.group(2)
     return "No coordinates", "No coordinates"
+
+def main(directory):
+    html_content = read_file(f'{directory}/MyActivity.html')
+    soup = parse_html(html_content)
+    entries = extract_div(soup)
+    data = extract_search_data(entries, soup)
+    save_to_csv(data, f'{directory}/extracted_search_history_data.csv', ['Search Text', 'Date', 'Latitude', 'Longitude'])
+    
+    print(f"Search data extraction complete. Results saved to '{directory}/extracted_search_history_data.csv'.")
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv[1])

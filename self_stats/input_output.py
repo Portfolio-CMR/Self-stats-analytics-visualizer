@@ -13,15 +13,17 @@ def read_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def write_to_csv(data, csv_file_path):
+def save_to_csv(data, filepath, mappings):
     """
-    Writes extracted data to a CSV file.
+    Saves extracted data to a CSV file using writerows for better performance.
     
     Args:
-    - data (list of lists): Data to write.
-    - csv_file_path (str): Path to the output CSV file.
+    - data (list of lists): List containing lists of extracted data.
+    - filepath (str): Path to save the CSV file.
+    - mappings (list): List of column names for the CSV file.
     """
-    with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Search Text', 'Date of Search', 'Latitude', 'Longitude'])
+    with open(filepath, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(mappings)
         writer.writerows(data)
+        

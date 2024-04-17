@@ -80,7 +80,7 @@ Choose the analytics files and types of visualizations through the command line 
 
 We encourage contributions from the community! Please read our `CONTRIBUTING.md` for guidelines on how to participate in developing this tool further.
 
-### **Data Privacy Disclaimer**
+## Data Privacy Disclaimer
 
 While the **Self Stats Google Takeout Data Insights Visualizer** offers powerful insights into your personal Google Analytics data, it's important to handle your data with care. Here are some precautions we strongly advise:
 

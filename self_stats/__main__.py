@@ -1,6 +1,6 @@
-from selector import get_file_presence_flags
-import process_watch_history
-import process_search_history
+from self_stats.munger.selector import get_file_presence_flags
+import self_stats.munger.watch_history as process_watch
+import self_stats.munger.search_history as process_search
 
 def main() -> None:
     """
@@ -12,10 +12,10 @@ def main() -> None:
     file_flags: dict = get_file_presence_flags(directory)
     if file_flags['watch_history_present']:
         print("Processing watch history...\n")
-        process_watch_history.main(directory)
+        process_watch.main(directory)
     if file_flags['my_activity_present']:
         print("Processing search history...\n")
-        process_search_history.main(directory)
+        process_search.main(directory)
 
 if __name__ == "__main__":
     main()

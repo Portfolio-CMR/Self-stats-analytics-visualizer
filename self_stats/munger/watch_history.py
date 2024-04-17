@@ -1,9 +1,10 @@
-import self_stats.clean_output_data as clean_output_data
+import self_stats.munger.clean_parsed_data as clean_parsed_data
 from typing import List, Any
 from bs4 import Tag, ResultSet  # Assuming BeautifulSoup is used
 from pathlib import Path
-from parse import parse_html, extract_div
-from input_output import read_file, save_to_csv
+from self_stats.munger.parse import parse_html, extract_div
+from self_stats.munger.input_output import read_file, save_to_csv
+from self_stats.munger.trim_and_clean_dates import clean_date
 
 def extract_video_data(entries: ResultSet) -> List[List[str]]:
     """
@@ -59,14 +60,16 @@ def main(directory: str) -> None:
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_video_data(entries)
-    cleaned_data = clean_output_data.main(data, 'watch_history')
+    cleaned_data = clean_parsed_data.main(data, 'watch_history')
 
     out_dir = Path(f'{directory}/output')
     if not out_dir.exists():
         out_dir.mkdir(parents=True, exist_ok=True)
         print(f"Directory created: {out_dir}\n")
-    save_to_csv(cleaned_data, f'{out_dir}/extracted_watch_history_data.csv', ['Search Text', 'Date', 'Latitude', 'Longitude'])
+    col_names = ['Video URL', 'Video Title', 'Channel Title', 'Date']
+    save_to_csv(cleaned_data, f'{out_dir}/extracted_watch_history_data.csv', col_names)
     print(f"Search data extraction complete. Results saved to '{directory}/extracted_watch_history_data.csv'.\n")
+
 
 
 if __name__ == "__main__":

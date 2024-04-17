@@ -1,11 +1,10 @@
 import re
-import self_stats.clean_output_data as clean_output_data
 from typing import List, Tuple
 from bs4 import BeautifulSoup, Tag  # Assuming BeautifulSoup is used
 from pathlib import Path
-from parse import parse_html, extract_div
-from input_output import read_file, save_to_csv
-
+from self_stats.munger.parse import parse_html, extract_div
+from self_stats.munger.input_output import read_file, save_to_csv
+import self_stats.munger.clean_parsed_data as clean_parsed_data
 
 def extract_search_data(entries: List[Tag], soup: BeautifulSoup) -> List[List[str]]:
     """
@@ -77,14 +76,17 @@ def main(directory: str) -> None:
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_search_data(entries, soup)
-    cleaned_data = clean_output_data.main(data, 'search_history')
+    cleaned_data = clean_parsed_data.main(data, 'search_history')
 
     out_dir = Path(f'{directory}/output')
     if not out_dir.exists():
         out_dir.mkdir(parents=True, exist_ok=True)
         print(f"Directory created: {out_dir}\n")
-    save_to_csv(cleaned_data, f'{out_dir}/extracted_search_history_data.csv', ['Search Text', 'Date', 'Latitude', 'Longitude'])
+    col_names = ['Search Text', 'Date', 'Latitude', 'Longitude']
+    save_to_csv(cleaned_data, f'{out_dir}/extracted_search_history_data.csv', col_names)
     print(f"Search data extraction complete. Results saved to '{directory}/extracted_search_history_data.csv'.\n")
+
+    
 
 if __name__ == "__main__":
     import sys

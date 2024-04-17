@@ -118,7 +118,3 @@ def main(data: List[List[str]], data_source: str) -> List[List[Any]]:
     processed_data = clean_and_convert_data(data, compiled_pattern, data_source)
 
     return processed_data
-
-# Example usage
-if __name__ == "__main__":
-    main()

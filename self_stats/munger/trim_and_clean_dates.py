@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Union
 
 
-def load_and_preprocess_data(file_path: Union[str | Path])  -> pd.DataFrame:
+def trim_date(file_path: Union[str | Path])  -> pd.DataFrame:
     """
     Loads data from a CSV file, preprocesses it by extracting relevant datetime features,
     and filters the data based on a changepoint analysis.
@@ -31,7 +31,3 @@ def load_and_preprocess_data(file_path: Union[str | Path])  -> pd.DataFrame:
         changepoint_date = daily_counts.index.min()
 
     return df[df['Date'] >= changepoint_date]
-
-df = load_and_preprocess_data('/home/bio/Python_projects/self_stats/data/extracted_watch_history_data.csv')
-
-df.to_csv('/home/bio/Python_projects/self_stats/data/filtered_watch_history_data.csv', index=False)

@@ -3,7 +3,7 @@ from dash.dependencies import Input, Output, State
 import plotly.express as px
 import pandas as pd
 from io import StringIO
-from preprocess_data import load_and_preprocess_data
+from self_stats.munger.trim_and_clean_dates import load_and_preprocess_data
 from pathlib import Path
 from plotly.graph_objs import Figure
 from typing import Union

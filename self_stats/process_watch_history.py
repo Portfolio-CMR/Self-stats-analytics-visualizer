@@ -1,3 +1,4 @@
+import self_stats.remove_unicode_characters as remove_unicode_characters
 from typing import List, Any
 from bs4 import Tag, ResultSet  # Assuming BeautifulSoup is used
 from parse import parse_html, extract_div
@@ -57,7 +58,8 @@ def main(directory: str) -> None:
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_video_data(entries)
-    save_to_csv(data, f'{directory}/extracted_watch_history_data.csv', ['Video URL', 'Video Title', 'Channel Title', 'Date'])
+    cleaned_data = remove_unicode_characters.main(data)
+    save_to_csv(cleaned_data, f'{directory}/extracted_watch_history_data.csv', ['Video URL', 'Video Title', 'Channel Title', 'Date'])
     
     print(f"Watch data extraction complete. Results saved to '{directory}/extracted_watch_history_data.csv'.")
 

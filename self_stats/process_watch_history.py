@@ -1,6 +1,7 @@
 import self_stats.clean_output_data as clean_output_data
 from typing import List, Any
 from bs4 import Tag, ResultSet  # Assuming BeautifulSoup is used
+from pathlib import Path
 from parse import parse_html, extract_div
 from input_output import read_file, save_to_csv
 
@@ -59,9 +60,14 @@ def main(directory: str) -> None:
     entries = extract_div(soup)
     data = extract_video_data(entries)
     cleaned_data = clean_output_data.main(data, 'watch_history')
-    save_to_csv(cleaned_data, f'{directory}/extracted_watch_history_data.csv', ['Video URL', 'Video Title', 'Channel Title', 'Date'])
-    
-    print(f"Watch data extraction complete. Results saved to '{directory}/extracted_watch_history_data.csv'.")
+
+    out_dir = Path(f'{directory}/output')
+    if not out_dir.exists():
+        out_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Directory created: {out_dir}\n")
+    save_to_csv(cleaned_data, f'{out_dir}/extracted_watch_history_data.csv', ['Search Text', 'Date', 'Latitude', 'Longitude'])
+    print(f"Search data extraction complete. Results saved to '{directory}/extracted_watch_history_data.csv'.\n")
+
 
 if __name__ == "__main__":
     import sys

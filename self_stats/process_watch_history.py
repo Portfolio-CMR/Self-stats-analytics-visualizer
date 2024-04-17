@@ -1,7 +1,9 @@
+from typing import List, Any
+from bs4 import Tag, ResultSet  # Assuming BeautifulSoup is used
 from parse import parse_html, extract_div
 from input_output import read_file, save_to_csv
 
-def extract_video_data(entries):
+def extract_video_data(entries: ResultSet) -> List[List[str]]:
     """
     Extracts video URL, video title, channel title, and date from all entries.
     
@@ -11,14 +13,14 @@ def extract_video_data(entries):
     Returns:
     - list of lists containing extracted data.
     """
-    data = []
+    data: List[List[str]] = []
     for entry in entries:
-        video_data = extract_video_field(entry)
+        video_data: List[str] = extract_video_field(entry)
         if video_data:
             data.append(video_data)
     return data
 
-def extract_video_field(entry):
+def extract_video_field(entry: Tag) -> List[str]:
     """
     Extracts the video data from an entry.
     
@@ -35,7 +37,7 @@ def extract_video_field(entry):
     date_text = extract_date(entry)
     return [video_url, video_title, channel_title, date_text]
 
-def extract_date(entry):
+def extract_date(entry: Tag) -> str:
     """
     Extracts the date from an entry using safe navigation for next siblings.
     
@@ -50,7 +52,7 @@ def extract_date(entry):
         return last_br.next_sibling.strip() if isinstance(last_br.next_sibling, str) else "No date found"
     return "No date found"
 
-def main(directory):
+def main(directory: str) -> None:
     html_content = read_file(f'{directory}/watch-history.html')
     soup = parse_html(html_content)
     entries = extract_div(soup)

@@ -1,7 +1,6 @@
 import regex as re
 from datetime import datetime
 from typing import List, Any, Tuple, Pattern
-from dateutil import parser as date_parser
 
 def remove_invisible_characters(text: str, compiled_pattern: re.Pattern) -> str:
     """
@@ -16,36 +15,21 @@ def remove_invisible_characters(text: str, compiled_pattern: re.Pattern) -> str:
     """
     return compiled_pattern.sub('', text).strip()
 
-
-def extract_timezone(date_str: str) -> Tuple[str, pytz.timezone]:
+def remove_timezone(date_str: str) -> str:
     """
-    Extract the timezone from a date string.
+    Extract the timezone abbreviation from a date string and return the string without it.
     
     Args:
     date_str (str): The input date string that includes a timezone abbreviation.
 
     Returns:
-    Tuple[str, pytz.timezone]: The date string with timezone abbreviation removed, and the pytz timezone object.
+    str: The date string with timezone abbreviation removed.
     """
-    # Adjust the regex pattern to capture any trailing timezone abbreviations
-    # The regex now specifically looks to split "PM" and the timezone if no space is present
     pattern = re.compile(r'(?<=AM|PM)([A-Z]{2,4})$')
-    match = pattern.search(date_str)
-    if match:
-        timezone_str = match.group(1)  # Capture the timezone abbreviation
-        try:
-            timezone = pytz.timezone(timezone_str)
-        except pytz.UnknownTimeZoneError:
-            timezone = pytz.utc  # Default to UTC if no valid timezone found
-        # Remove the timezone string from the date_str for parsing
-        date_str_no_tz = pattern.sub('', date_str).strip()
-    else:
-        timezone = pytz.utc  # Default to UTC if no timezone found
-        date_str_no_tz = date_str
+    date_str_no_tz = pattern.sub('', date_str).strip()  # Remove the timezone string from the date_str for parsing
+    return date_str_no_tz
 
-    return date_str_no_tz, timezone
-
-def parse_datetime(date_str: str) -> datetime:
+def parse_date(date_str: str) -> datetime:
     """
     Parse the datetime from a string assuming it's formatted correctly without timezone information.
 
@@ -55,29 +39,8 @@ def parse_datetime(date_str: str) -> datetime:
     Returns:
     datetime: The naive datetime object parsed from the string.
     """
-    return datetime.strptime(date_str, '%b%d,%Y,%I:%M:%S%p')
-
-def localize_datetime(naive_datetime: datetime, timezone: pytz.timezone) -> datetime:
-    """
-    Localize a naive datetime object to a specific timezone.
-
-    Args:
-    naive_datetime (datetime): The naive datetime object to be localized.
-    timezone (pytz.timezone): The timezone to apply to the datetime object.
-
-    Returns:
-    datetime: The timezone-aware datetime object.
-    """
-    return timezone.localize(naive_datetime)
-
-def parse_date(date_str: str) -> datetime:
-    """
-    Combine extraction, parsing, and localization to convert a date string into a timezone-aware datetime object.
-    """
-    date_str_no_tz, timezone = extract_timezone(date_str)
-    naive_datetime = parse_datetime(date_str_no_tz)
-    localized_datetime = localize_datetime(naive_datetime, timezone)
-    return localized_datetime
+    date_str_no_tz = remove_timezone(date_str)
+    return datetime.strptime(date_str_no_tz, '%b%d,%Y,%I:%M:%S%p')
 
 def process_row(row: List[str], compiled_pattern: Pattern) -> List[Any]:
     """
@@ -131,10 +94,4 @@ def main(data: List[List[str]]) -> List[List[Any]]:
 
 # Example usage
 if __name__ == "__main__":
-    # Example data, assuming date format matches 'MMMdd,yyyy,hh:mm:ssaaPDT'
-    example_data = [["John Doe", "Apr15,2024,7:12:34PMPDT", "123.45", "678.90"],
-                    ["Jane Smith", "Apr16,2024,8:13:35PMPDT", "234.56", "789.01"]]
-    cleaned_and_converted_data = main(example_data)
-    print("Cleaned and Converted Data:")
-    for row in cleaned_and_converted_data:
-        print(row)
+    main()

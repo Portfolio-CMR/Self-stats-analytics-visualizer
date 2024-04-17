@@ -41,8 +41,8 @@ pip install takeout-insights-visualizer
 
    - Choose the Google products you want data from. Ensure you have selected **"MyActivity"** and **"YouTube and YouTube Music"**
 
-![MyActivity Example](self_stats/images/search_download_example.jpg)
-![YouTube Example](self_stats/images/yt_download_example.jpg)
+![MyActivity Example](images/search_download_example.jpg)
+![YouTube Example](images/yt_download_example.jpg)
 
 - You can customize the archive format and the maximum size of the archive.
 

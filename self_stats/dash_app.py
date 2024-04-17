@@ -38,6 +38,10 @@ def load_data(n):
     df = df.dropna(subset=['Date'])
     return df.to_json(date_format='iso', orient='split')
 
+# Assuming that 'num_bins' is the desired number of bins when fully zoomed out
+# You can adjust 'num_bins' based on your dataset and preference
+num_bins = 30
+
 @app.callback(
     Output('time-series-chart', 'figure'),
     [Input('stored-data', 'data'),
@@ -46,20 +50,44 @@ def load_data(n):
 def update_graph(json_data, relayoutData):
     df = pd.read_json(json_data, orient='split')
 
-    x_range = None
+    # Check if there is zoom range info in relayoutData
     if relayoutData and 'xaxis.range[0]' in relayoutData and 'xaxis.range[1]' in relayoutData:
-        x_range = [relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']]
+        x_start, x_end = relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']
+        # Filter data based on zoom range
+        df_zoomed = df[(df['Date'] >= x_start) & (df['Date'] <= x_end)]
+        # Update number of bins based on the zoomed range
+        bin_size = (pd.to_datetime(x_end) - pd.to_datetime(x_start)) / num_bins
+        fig = px.histogram(df_zoomed, x='Date', nbins=num_bins, title="Frequency of Entries Over Time")
+        # Update the bins' size
+        fig.update_traces(xbins=dict(start=x_start, end=x_end, size=bin_size))
+    else:
+        # Default view with default number of bins
+        fig = px.histogram(df, x='Date', nbins=num_bins, title="Frequency of Entries Over Time")
 
-    fig = px.histogram(df, x='Date', nbins=50, title="Frequency of Entries Over Time", range_x=x_range, color_discrete_sequence=['teal'])
+    # Set the color of the histogram bars to teal
+    fig.update_traces(marker_color='#008080')
+    
+    # Ensure the background is transparent and update layout properties as before
     fig.update_layout(
         bargap=0.2,
         plot_bgcolor='rgba(0,0,0,0)',  # Transparent background for the plot
         paper_bgcolor='rgba(0,0,0,0)',  # Transparent background for the area around the plot
-        font_color="white"  # Change font color to white for better contrast
+        font_color="white",  # Change font color to white for better contrast
+        xaxis=dict(
+            showline=True,
+            showgrid=True,
+            linecolor='white',
+            gridcolor='grey'
+        ),
+        yaxis=dict(
+            showline=True,
+            showgrid=True,
+            linecolor='white',
+            gridcolor='grey'
+        )
     )
 
     return fig
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)

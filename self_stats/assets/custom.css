@@ -1,0 +1,11 @@
+body {
+  background-image: url("/assets/dash_background.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin: 0; /* Remove default margin */
+  overflow: hidden; /* Prevents scroll bars */
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  z-index: -1; /* Set to -1 so that content sits above the background image */
+}

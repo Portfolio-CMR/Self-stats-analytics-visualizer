@@ -1,5 +1,5 @@
 import re
-import self_stats.remove_unicode_characters as remove_unicode_characters
+import self_stats.clean_output_data as clean_output_data
 from typing import List, Tuple
 from bs4 import BeautifulSoup, Tag  # Assuming BeautifulSoup is used
 from parse import parse_html, extract_div
@@ -76,7 +76,7 @@ def main(directory: str) -> None:
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_search_data(entries, soup)
-    cleaned_data = remove_unicode_characters.main(data)
+    cleaned_data = clean_output_data.main(data)
     save_to_csv(cleaned_data, f'{directory}/extracted_search_history_data.csv', ['Search Text', 'Date', 'Latitude', 'Longitude'])
     
     print(f"Search data extraction complete. Results saved to '{directory}/extracted_search_history_data.csv'.")

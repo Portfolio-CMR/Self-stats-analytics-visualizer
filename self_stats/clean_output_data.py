@@ -2,6 +2,22 @@ import regex as re
 from datetime import datetime
 from typing import List, Any, Tuple, Pattern
 
+def safe_convert_to_float(value: str) -> float:
+    """
+    Attempts to convert a given string to a float. If the string cannot be 
+    converted to a float, it returns the original string.
+    
+    Args:
+    value (str): The string to be converted to a float.
+    
+    Returns:
+    float or str: The converted float value or the original string if the conversion fails.
+    """
+    try:
+        return float(value)
+    except ValueError:
+        return value
+
 def remove_invisible_characters(text: str, compiled_pattern: re.Pattern) -> str:
     """
     Remove invisible and non-printable Unicode characters from a given text string using a precompiled regex pattern.
@@ -40,9 +56,12 @@ def parse_date(date_str: str) -> datetime:
     datetime: The naive datetime object parsed from the string.
     """
     date_str_no_tz = remove_timezone(date_str)
-    return datetime.strptime(date_str_no_tz, '%b%d,%Y,%I:%M:%S%p')
+    try:
+        return datetime.strptime(date_str_no_tz, '%b%d,%Y,%I:%M:%S%p')
+    except ValueError:
+        return date_str_no_tz
 
-def process_row(row: List[str], compiled_pattern: Pattern) -> List[Any]:
+def process_row(row: List[str], compiled_pattern: Pattern, data_source: str) -> List[Any]:
     """
     Process a single row by cleaning and converting each element to the specified type.
     
@@ -54,14 +73,22 @@ def process_row(row: List[str], compiled_pattern: Pattern) -> List[Any]:
     List[Any]: The processed row with elements converted to their specific types.
     """
     cleaned_elements = [remove_invisible_characters(item, compiled_pattern) for item in row]
-    return [
-        cleaned_elements[0],  # Keep string as is
-        parse_date(cleaned_elements[1]),  # Convert second element to datetime
-        float(cleaned_elements[2]),  # Convert third element to float
-        float(cleaned_elements[3])  # Convert fourth element to float
-    ]
+    if data_source == 'search_history':
+        return [
+            cleaned_elements[0],  # Keep string as is
+            parse_date(cleaned_elements[1]),  # Convert second element to datetime
+            safe_convert_to_float(cleaned_elements[2]),  # Convert third element to float
+            safe_convert_to_float(cleaned_elements[3])  # Convert fourth element to float
+        ]
+    elif data_source == 'watch_history':
+        return [
+            cleaned_elements[0],  # Keep string as is
+            (cleaned_elements[1]),  # Keep string as is
+            (cleaned_elements[2]),  # Keep string as is
+            parse_date(cleaned_elements[3])  # Convert fourth element to datetime
+        ]
 
-def clean_and_convert_data(data: List[List[str]], compiled_pattern: Pattern) -> List[List[Any]]:
+def clean_and_convert_data(data: List[List[str]], compiled_pattern: Pattern, data_source: str) -> List[List[Any]]:
     """
     Clean the data from invisible characters and convert each element to the specified type.
     
@@ -72,9 +99,9 @@ def clean_and_convert_data(data: List[List[str]], compiled_pattern: Pattern) -> 
     Returns:
     List[List[Any]]: The list of lists with each element cleaned and converted to its specific type.
     """
-    return [process_row(row, compiled_pattern) for row in data]
+    return [process_row(row, compiled_pattern, data_source) for row in data]
 
-def main(data: List[List[str]]) -> List[List[Any]]:
+def main(data: List[List[str]], data_source: str) -> List[List[Any]]:
     """
     Main function to process data for cleaning and type conversion.
     
@@ -88,7 +115,7 @@ def main(data: List[List[str]]) -> List[List[Any]]:
     compiled_pattern = re.compile(r'\p{C}+|\p{Z}+|[\u200B-\u200F\u2028-\u202F]+')
 
     # Clean the data and convert types
-    processed_data = clean_and_convert_data(data, compiled_pattern)
+    processed_data = clean_and_convert_data(data, compiled_pattern, data_source)
 
     return processed_data
 

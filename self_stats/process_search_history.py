@@ -76,7 +76,7 @@ def main(directory: str) -> None:
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_search_data(entries, soup)
-    cleaned_data = clean_output_data.main(data)
+    cleaned_data = clean_output_data.main(data, 'search_history')
     save_to_csv(cleaned_data, f'{directory}/extracted_search_history_data.csv', ['Search Text', 'Date', 'Latitude', 'Longitude'])
     
     print(f"Search data extraction complete. Results saved to '{directory}/extracted_search_history_data.csv'.")

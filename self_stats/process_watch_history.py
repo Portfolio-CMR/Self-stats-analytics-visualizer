@@ -58,7 +58,7 @@ def main(directory: str) -> None:
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_video_data(entries)
-    cleaned_data = clean_output_data.main(data)
+    cleaned_data = clean_output_data.main(data, 'watch_history')
     save_to_csv(cleaned_data, f'{directory}/extracted_watch_history_data.csv', ['Video URL', 'Video Title', 'Channel Title', 'Date'])
     
     print(f"Watch data extraction complete. Results saved to '{directory}/extracted_watch_history_data.csv'.")

@@ -7,7 +7,7 @@ def main() -> None:
     Main function that orchestrates the processing of watch history and search history based on file presence.
     """
     directory: str = input("Enter the directory path where your input data is held: ")
-    print(f"\Initializing from diretory: {directory}...\n")
+    print(f"\Initializing from directory: {directory}...\n")
 
     file_flags: dict = get_file_presence_flags(directory)
     if file_flags['watch_history_present']:

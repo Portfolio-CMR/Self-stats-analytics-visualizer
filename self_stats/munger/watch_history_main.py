@@ -1,11 +1,10 @@
-from typing import List, Any
+from typing import List, Any, Tuple
 from bs4 import Tag, ResultSet  # Assuming BeautifulSoup is used
 from pathlib import Path
 import numpy as np
 from self_stats.munger.parse import parse_html, extract_div
 from self_stats.munger.input_output import read_file
-import self_stats.munger.watch_history_cleaner as watch_history_cleaner
-from self_stats.munger.clean_data_shared import convert_to_arrays
+from self_stats.munger.clean_data_shared import convert_to_arrays, parse_dates, safe_convert_to_float, remove_invisible_characters, remove_indices_from_tuple, main as cleaner_main
 
 def extract_video_data(entries: ResultSet) -> List[List[str]]:
     """
@@ -56,12 +55,11 @@ def extract_date(entry: Tag) -> str:
         return last_br.next_sibling.strip() if isinstance(last_br.next_sibling, str) else "No date found"
     return "No date found"
 
-def main(directory: str) -> None:
+def main(directory: str, mappings: List[str]) -> None:
     html_content = read_file(f'{directory}/watch-history.html')
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_video_data(entries)
-    video_urls, video_titles, channel_titles, dates = convert_to_arrays(data)
-    cleaned_data = watch_history_cleaner.main(video_urls, video_titles, channel_titles, dates)
+    arr_data = convert_to_arrays(data)
+    cleaned_data = cleaner_main(arr_data, mappings)
     return cleaned_data
-

@@ -128,10 +128,89 @@ def remove_indices_from_tuple(data: Tuple[np.ndarray, np.ndarray, np.ndarray, np
     Returns:
     - Tuple[np.ndarray, ...]: A new tuple of numpy arrays with specified indices removed.
     """
-    # Convert the list of indices to a numpy array for efficient operations
-    indices_to_remove = np.array(indices)
+    if indices:
+        # Convert the list of indices to a numpy array for efficient operations
+        indices_to_remove = np.array(indices)
+        # Use numpy's boolean indexing to create new arrays without the specified indices
+        modified_data = tuple(np.delete(arr, indices_to_remove) for arr in data)
+        return modified_data
+    else:
+        return data
+
+def type_search_history_data(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], timezone_pattern: Pattern, mapping: List[str]):
+    """
+    Process the data from numpy arrays by cleaning and converting each element.
     
-    # Use numpy's boolean indexing to create new arrays without the specified indices
-    modified_data = tuple(np.delete(arr, indices_to_remove) for arr in data)
+    Args:
+    search_texts, dates, latitudes, longitudes (np.ndarray): Arrays of data.
+    compiled_pattern (Pattern): A compiled regex pattern to remove invisible characters.
+    data_source (str): String indicating the type of data to process.
+
+    Returns:
+    Tuple of arrays after processing.
+    """
+
+    for i, column_name in enumerate(mapping):
+        if column_name == 'Date':
+            clean_dates, bad_indices = parse_dates(arr_data[i], timezone_pattern)
+        elif column_name == 'Latitude':
+            clean_latitudes = safe_convert_to_float(arr_data[i])
+        elif column_name == 'Longitude':
+            clean_longitudes = safe_convert_to_float(arr_data[i])
+        elif column_name == 'Search Text':
+            clean_search_texts = arr_data[i]
+
+    typed_arr_data = remove_indices_from_tuple((clean_search_texts, clean_dates, clean_latitudes, clean_longitudes), bad_indices)
+
+    return typed_arr_data
+
+def type_watch_history_data(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], timezone_pattern: Pattern, mapping: List[str]):
+    """
+    Process the data from numpy arrays by cleaning and converting each element.
     
-    return modified_data
+    Args:
+    search_texts, dates, latitudes, longitudes (np.ndarray): Arrays of data.
+    compiled_pattern (Pattern): A compiled regex pattern to remove invisible characters.
+    data_source (str): String indicating the type of data to process.
+
+    Returns:
+    Tuple of arrays after processing.
+    """
+
+    for i, column_name in enumerate(mapping):
+        if column_name == 'Video URL':
+            clean_urls = arr_data[i]
+        elif column_name == 'Video Title':
+            clean_video_titles = arr_data[i]
+        elif column_name == 'Channel Title':
+            clean_channel_titles = arr_data[i]
+        elif column_name == 'Date':
+            clean_dates, bad_indices = parse_dates(arr_data[i], timezone_pattern)
+
+    typed_arr_data = remove_indices_from_tuple((clean_urls, clean_video_titles, clean_channel_titles, clean_dates), bad_indices)
+
+    return typed_arr_data
+
+def main(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], mappings: List[str]) -> np.ndarray:
+    """
+    Main function to process data arrays for cleaning and type conversion.
+    
+    Args:
+    search_texts, dates, latitudes, longitudes (np.ndarray): Arrays of data.
+
+    Returns:
+    Tuple of arrays after processing.
+    """
+    # Compile the regex pattern once and remove hidden characters
+    hidden_char_pattern = re.compile(r'\p{C}+|\p{Z}+|[\u200B-\u200F\u2028-\u202F]+')
+    clean_arr_data = clean_all_columns(arr_data, hidden_char_pattern)
+    
+    # Compile the regex pattern once and then clean/apply data types
+    timezone_pattern = re.compile(r'(?<=AM|PM)\s*([A-Z]{2,4})$')
+    if mappings[0] == 'Search Text':
+        typed_arr_data = type_search_history_data(clean_arr_data, timezone_pattern, mappings)
+    elif mappings[0] == 'Video URL':
+        typed_arr_data = type_watch_history_data(clean_arr_data, timezone_pattern, mappings)
+    processed_data = typed_arr_data
+
+    return processed_data

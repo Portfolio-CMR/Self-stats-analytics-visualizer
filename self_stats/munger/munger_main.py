@@ -20,11 +20,11 @@ def main(directory: str, data_source: str, mappings: List[str]) -> None:
             out_dir.mkdir(parents=True, exist_ok=True)
             print(f"Directory created: {out_dir}\n")
         save_to_csv(cleaned_data, f'{out_dir}/extracted_{data_source}_data.csv', mappings)
-        print(f"Search data extraction complete. Results saved to '{directory}/extracted_{data_source}_data.csv'.\n")
-        dash_ready_data = trim_date(cleaned_data, mappings)
-        save_to_csv(dash_ready_data, f'{out_dir}/dash_ready_{data_source}_data.csv', mappings)
-        print(f"Data processing complete. Results saved to '{directory}/dash_ready_{data_source}_data.csv'.\n")
-    else:
-        error_message = "No data processed. Please check that input data is in the specified directory."
-        raise OSError(error_message)
+    #     print(f"Search data extraction complete. Results saved to '{directory}/extracted_{data_source}_data.csv'.\n")
+    #     dash_ready_data = trim_date(cleaned_data, mappings)
+    #     save_to_csv(dash_ready_data, f'{out_dir}/dash_ready_{data_source}_data.csv', mappings)
+    #     print(f"Data processing complete. Results saved to '{directory}/dash_ready_{data_source}_data.csv'.\n")
+    # else:
+    #     error_message = "No data processed. Please check that input data is in the specified directory."
+    #     raise OSError(error_message)
     

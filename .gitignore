@@ -2,3 +2,5 @@
 data/*
 self_stats/__pycache__/*
 tests/__pycache__/*
+self_stats/munger/__pycache__/*
+self_stats/dash_app/__pycache__/*

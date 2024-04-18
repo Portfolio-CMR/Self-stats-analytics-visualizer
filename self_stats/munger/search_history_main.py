@@ -4,8 +4,7 @@ import numpy as np
 from bs4 import BeautifulSoup, Tag  # Assuming BeautifulSoup is used
 from self_stats.munger.parse import parse_html, extract_div
 from self_stats.munger.input_output import read_file
-import self_stats.munger.search_history_cleaner as search_history_cleaner
-from self_stats.munger.clean_data_shared import convert_to_arrays
+from self_stats.munger.clean_data_shared import convert_to_arrays, parse_dates, safe_convert_to_float, remove_invisible_characters, remove_indices_from_tuple, main as cleaner_main
 
 def extract_search_data(entries: List[Tag], soup: BeautifulSoup) -> List[List[str]]:
     """
@@ -72,11 +71,13 @@ def extract_coordinates(soup: BeautifulSoup) -> Tuple[str, str]:
             return coordinates.group(1), coordinates.group(2)
     return "No coordinates", "No coordinates"
 
+
+
 def main(directory: str, mappings: List[str]) -> None:
     html_content = read_file(f'{directory}/MyActivity.html')
     soup = parse_html(html_content)
     entries = extract_div(soup)
     data = extract_search_data(entries, soup)
     arr_data = convert_to_arrays(data)
-    cleaned_data = search_history_cleaner.main(arr_data, mappings)
+    cleaned_data = cleaner_main(arr_data, mappings)
     return cleaned_data

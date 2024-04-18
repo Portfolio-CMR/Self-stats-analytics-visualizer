@@ -1,9 +1,9 @@
 import csv
-from typing import List, Tuple
-import numpy as np
-from typing import List, Tuple, Optional, Dict, Any
 import json
+import numpy as np
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 
 def read_json_file(file_path: str) -> List[Dict[str, Any]]:
     """

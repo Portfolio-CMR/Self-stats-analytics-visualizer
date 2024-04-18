@@ -1,9 +1,10 @@
-import numpy as np
-from numpy import ndarray
-from datetime import datetime
-from typing import Tuple, List, Optional
-import ruptures as rpt
 from collections import Counter
+from datetime import datetime
+from typing import List, Optional, Tuple
+
+import numpy as np
+import ruptures as rpt
+from numpy import ndarray
 
 def calculate_daily_counts(dates: ndarray) -> Tuple[ndarray, ndarray]:
     """

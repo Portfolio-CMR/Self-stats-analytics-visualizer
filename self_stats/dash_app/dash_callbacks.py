@@ -96,7 +96,8 @@ def register_callbacks(app: Dash, path: Union[str, Path]) -> None:
         """
         df = pd.read_json(StringIO(json_data), orient='split')
         df['Date'] = pd.to_datetime(df['Date'])
-        df['Hour'] = df['Date'].dt.hour
+        df['Date_tz'] = df['Date'].apply(adjust_time_by_utc_offset)
+        df['Hour'] = df['Date_tz'].dt.hour
 
         if relayoutData and 'xaxis.range[0]' in relayoutData and 'xaxis.range[1]' in relayoutData:
             x_start, x_end = pd.to_datetime(relayoutData['xaxis.range[0]']), pd.to_datetime(relayoutData['xaxis.range[1]'])

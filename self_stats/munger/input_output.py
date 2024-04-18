@@ -3,6 +3,7 @@ from typing import List, Tuple
 import numpy as np
 from typing import List, Tuple, Optional, Dict, Any
 import json
+from pathlib import Path
 
 def read_json_file(file_path: str) -> List[Dict[str, Any]]:
     """
@@ -17,7 +18,7 @@ def read_json_file(file_path: str) -> List[Dict[str, Any]]:
     with open(file_path, 'r') as file:
         return json.load(file)
 
-def save_to_csv(data: Tuple[np.ndarray, ...], filepath: str, mappings: List[str]) -> None:
+def save_to_csv(data: Tuple[np.ndarray, ...], filepath: str | Path, mappings: List[str]) -> None:
     """
     Saves extracted data to a CSV file using writerows for better performance.
     
@@ -26,6 +27,7 @@ def save_to_csv(data: Tuple[np.ndarray, ...], filepath: str, mappings: List[str]
     - filepath (str): Path to save the CSV file.
     - mappings (List[str]): List of column names for the CSV file.
     """
+
     with open(filepath, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(mappings)

@@ -73,15 +73,22 @@ def extract_watch_information(json_data: List[Dict[str, Any]]) -> List[Dict[str,
         time, and coordinates (latitude and longitude).
     """
     extracted_data = []
+
     for entry in json_data:
-        title = entry['title']
-        time = entry['time']
-        if 'locationInfos' in entry:
-            location_url = entry['locationInfos'][0]['url'] if entry['locationInfos'] else None
-            lat, long = extract_coordinates(location_url) if location_url else (None, None)
-        else:
-            lat, long = None, None
-        extracted_data.append({'title': title, 'time': time, 'lat': lat, 'long': long})
+        title = entry.get('title', '')
+        time = entry.get('time', None)
+        titleUrl = entry.get('titleUrl', None)
+        channel_info = entry.get('subtitles', [])
+        if channel_info:
+            channel_name = channel_info[0].get('name', None)
+
+        extracted_data.append({
+            'Video URL': titleUrl,
+            'Video Title': title,
+            'Channel Title': channel_name,
+            'Date': time
+        })
+
     return extracted_data
 
 def main(directory: str, data_source: str | Path, mappings: List[str]) -> None:
@@ -89,7 +96,7 @@ def main(directory: str, data_source: str | Path, mappings: List[str]) -> None:
     json_data = read_json_file(data_source)
     if data_source == f'{directory}/MyActivity.json':
         extracted_data = extract_search_information(json_data)
-    elif data_source == f'{directory}/watch_history.json':
+    if data_source == f'{directory}/watch-history.json':
         extracted_data = extract_watch_information(json_data)
 
     arr_data = convert_to_arrays(extracted_data, mappings)

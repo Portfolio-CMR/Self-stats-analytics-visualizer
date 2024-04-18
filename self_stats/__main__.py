@@ -3,7 +3,8 @@ from self_stats.munger.munger_main import main as munger_main
 
 def main() -> None:
     """
-    Main function that orchestrates the processing of watch history and search history based on file presence.
+    Main function that orchestr
+    ates the processing of watch history and search history based on file presence.
     """
     directory: str = input("Enter the directory path where your input data is held: ")
     print(f"\Initializing from directory: {directory}...\n")

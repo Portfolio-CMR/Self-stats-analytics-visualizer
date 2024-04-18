@@ -26,6 +26,6 @@ def get_file_presence_flags(directory: str) -> Dict[str, bool]:
     ensure_directory_exists(directory)
     path = Path(directory)
     return {
-        'watch_history_present': (path / 'watch-history.html').exists(),
-        'my_activity_present': (path / 'MyActivity.html').exists()
+        'watch_history_present': (path / 'watch-history.json').exists(),
+        'my_activity_present': (path / 'MyActivity.json').exists()
     }

@@ -1,19 +1,21 @@
 import csv
 from typing import List, Tuple
 import numpy as np
+from typing import List, Tuple, Optional, Dict, Any
+import json
 
-def read_file(file_path: str) -> str:
+def read_json_file(file_path: str) -> List[Dict[str, Any]]:
     """
-    Reads an HTML file from the given path.
-    
+    Loads JSON data from a specified file.
+
     Args:
-    - file_path (str): Path to the file.
-    
+        file_path (str): The path to the JSON file.
+
     Returns:
-    - str: Content of the file.
+        List[Dict[str, Any]]: A list of dictionaries containing JSON data.
     """
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
+    with open(file_path, 'r') as file:
+        return json.load(file)
 
 def save_to_csv(data: Tuple[np.ndarray, ...], filepath: str, mappings: List[str]) -> None:
     """

@@ -7,8 +7,8 @@ def main() -> None:
     Main function that orchestr
     ates the processing of watch history and search history based on file presence.
     """
-    skip_preprocess = False
-    # directory = 'data'
+    skip_preprocess = True
+    directory = 'data'
 
     if not skip_preprocess:
         directory: str = input("Enter the directory path where your input data is held: ")
@@ -34,13 +34,14 @@ def main() -> None:
                 'Date'
             ])
     
+    
     #TODO Implement dash visualization sub-module here
 
-    # viz_flag = 'search'
+    viz_flag = 'watch'
 
-    # if viz_flag == 'watch':
-    #     print("Visualizing watch history...\n")
-    #     dash_main('data/output/dash_ready_watch_data.csv')
+    if viz_flag == 'watch':
+        print("Visualizing watch history...\n")
+        dash_main('data/output/dash_ready_watch_data.csv')
 
 if __name__ == "__main__":
     main()

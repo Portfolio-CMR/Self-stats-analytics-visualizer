@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from self_stats.munger.parse import parse_html, extract_div
 from self_stats.munger.input_output import read_file
-import self_stats.munger.watch_cleaner as watch_cleaner
+import self_stats.munger.watch_history_cleaner as watch_history_cleaner
 from self_stats.munger.clean_data_shared import convert_to_arrays
 
 def extract_video_data(entries: ResultSet) -> List[List[str]]:
@@ -62,5 +62,6 @@ def main(directory: str) -> None:
     entries = extract_div(soup)
     data = extract_video_data(entries)
     video_urls, video_titles, channel_titles, dates = convert_to_arrays(data)
-    cleaned_data = watch_cleaner.main(video_urls, video_titles, channel_titles, dates)
+    cleaned_data = watch_history_cleaner.main(video_urls, video_titles, channel_titles, dates)
     return cleaned_data
+

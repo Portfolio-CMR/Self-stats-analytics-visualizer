@@ -1,34 +1,32 @@
 from typing import List, Any
-from datetime import date
+from datetime import datetime
 import ruptures as rpt
+import numpy as np
+from collections import Counter
 
-def trim_date(data: List[List[Any]], mapping: List[str]) -> List[List[Any]]:
+def trim_date(data: np.ndarray, mapping: List[str]) -> np.ndarray:
     """
-    Processes a list of lists, extracting relevant datetime features,
+    Processes a numpy array, extracting relevant datetime features,
     and filters the data based on a changepoint analysis.
 
     Args:
-        data (List[List[Any]]): Input data where each inner list represents a row with elements corresponding to ['search', 'Date', 'lat', 'long'].
-        mapping (List[str]): List of column names.
+        data (np.ndarray): Input data where each row represents different data types.
+        mapping (List[str]): List of column names indicating what each row represents.
 
     Returns:
-        List[List[Any]]: A list of lists with filtered data.
+        np.ndarray: A numpy array with filtered data.
     """
     date_index = mapping.index('Date')
     
-    # Create a dictionary to count occurrences per day
-    daily_counts = {}
-    for row in data:
-        date_key = row[date_index].date()  # Assuming datetime objects, extracting just the date part
-        if date_key in daily_counts:
-            daily_counts[date_key] += 1
-        else:
-            daily_counts[date_key] = 1
+    # Extract just the date part from each datetime object using NumPy's vectorization
+    dates_only = np.vectorize(lambda dt: dt.date())(data[date_index])
 
-    # Prepare the data for changepoint detection
+    # Use Counter to count occurrences of each date
+    daily_counts = Counter(dates_only)
+
+    # Convert daily_counts to sorted arrays
     dates_sorted = sorted(daily_counts.keys())
-    counts = [daily_counts[date] for date in dates_sorted]
-    counts_array = [[count] for count in counts]
+    counts_array = np.array([daily_counts[date] for date in dates_sorted]).reshape(-1, 1)
 
     # Perform changepoint detection
     algo = rpt.Binseg(model='l2').fit(counts_array)
@@ -40,7 +38,8 @@ def trim_date(data: List[List[Any]], mapping: List[str]) -> List[List[Any]]:
     else:
         changepoint_date = dates_sorted[0]
 
-    # Filter the data based on the changepoint
-    filtered_data = [row for row in data if row[date_index].date() >= changepoint_date]
+    # Filter data columns based on the changepoint
+    filtered_indices = np.array([date >= changepoint_date for date in dates_only])
+    filtered_data = data[:, filtered_indices]  # Assuming data columns are vertically aligned with dates
 
     return filtered_data

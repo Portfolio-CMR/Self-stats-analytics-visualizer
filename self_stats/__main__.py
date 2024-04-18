@@ -11,6 +11,14 @@ def main() -> None:
     print(f"\Initializing from directory: {directory}...\n")
     file_flags: dict = get_file_presence_flags(directory)
 
+    if file_flags['my_activity_present']:
+        print("Processing search history...\n")
+        munger_main(directory, 'search_history', [
+            'Search Text',
+            'Date',
+            'Latitude',
+            'Longitude'
+        ])
 
     if file_flags['watch_history_present']:
         print("Processing watch history...\n")
@@ -21,14 +29,6 @@ def main() -> None:
             'Date'
         ])
     
-    if file_flags['my_activity_present']:
-        print("Processing search history...\n")
-        munger_main(directory, 'search_history', [
-            'Search Text',
-            'Date',
-            'Latitude',
-            'Longitude'
-        ])
 
 
 if __name__ == "__main__":

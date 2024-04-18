@@ -3,64 +3,90 @@ import regex as re
 from datetime import datetime
 from typing import List, Any, Tuple, Pattern
 
-def safe_convert_to_float(value: str) -> float:
+def safe_convert_to_float(values: np.ndarray) -> np.ndarray:
     """
-    Attempts to convert a given string to a float. If the string cannot be 
-    converted to a float, it returns the original string.
-    
-    Args:
-    value (str): The string to be converted to a float.
-    
-    Returns:
-    float or str: The converted float value or the original string if the conversion fails.
-    """
-    try:
-        return float(value)
-    except ValueError:
-        return value
-
-def remove_invisible_characters(text: str, hidden_char_pattern: Pattern) -> str:
-    """
-    Remove invisible and non-printable Unicode characters from a given text string using a precompiled regex pattern.
-    
-    Args:
-    text (str): A string from which to remove invisible characters.
-    compiled_pattern (Pattern): A precompiled regex pattern to match invisible characters.
-
-    Returns:
-    str: The cleaned text string without invisible characters.
-    """
-    return hidden_char_pattern.sub(' ', text).strip()
-
-def remove_timezone(date_str: str, timezone_pattern: Pattern) -> str:
-    """
-    Extract the timezone abbreviation from a date string and return the string without it.
-    
-    Args:
-    date_str (str): The input date string that includes a timezone abbreviation.
-
-    Returns:
-    str: The date string with timezone abbreviation removed.
-    """
-    return timezone_pattern.sub('', date_str).strip()
-
-def parse_date(date_str: str, timezone_pattern: Pattern) -> datetime:
-    """
-    Parse the datetime from a string assuming it's formatted correctly without timezone information.
+    Attempts to convert each element of a 1D numpy array from string to float. 
+    If an element cannot be converted to a float, it retains the original string.
 
     Args:
-    date_str (str): The datetime string in a specific format.
+    values (np.ndarray): The 1D array of strings to be converted to floats.
+    
+    Returns:
+    np.ndarray: An array where each element is either the converted float value or the original string if the conversion fails.
+    """
+    # Define the function that tries to convert one value
+    def convert(value):
+        try:
+            return float(value)
+        except ValueError:
+            return value
+
+    # Vectorize this function so it can be applied to each element in the numpy array
+    vectorized_convert = np.vectorize(convert, otypes=[object])
+
+    # Apply the vectorized function to the array of values
+    converted_values = vectorized_convert(values)
+    return converted_values
+
+def remove_invisible_characters(texts: np.ndarray, hidden_char_pattern: Pattern) -> np.ndarray:
+    """
+    Remove invisible and non-printable Unicode characters from each text string in a numpy array using a precompiled regex pattern.
+    
+    Args:
+    texts (np.ndarray): A numpy array of strings from which to remove invisible characters.
+    hidden_char_pattern (Pattern): A precompiled regex pattern to match invisible characters.
 
     Returns:
-    datetime: The naive datetime object parsed from the string.
+    np.ndarray: A numpy array containing the cleaned text strings without invisible characters.
     """
-    date_str_no_tz = remove_timezone(date_str, timezone_pattern)
-    try:
-        return datetime.strptime(date_str_no_tz, '%b %d, %Y, %I:%M:%S %p')
-    except ValueError:
-        return date_str_no_tz
+    vectorized_remove = np.vectorize(lambda text: hidden_char_pattern.sub(' ', text).strip())
+    cleaned_texts = vectorized_remove(texts)
+    return cleaned_texts
+
+def remove_timezones(date_strings: np.ndarray, timezone_pattern: Pattern) -> np.ndarray:
+    """
+    Remove timezone abbreviations from each date string in a numpy array using a precompiled regex pattern.
     
-def clean_all_columns(col_1, col_2, col_3, col_4, hidden_char_pattern: Pattern) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    Args:
+    date_strings (np.ndarray): A numpy array of date strings that may include timezone abbreviations.
+    timezone_pattern (Pattern): A precompiled regex pattern to match and remove timezone abbreviations.
+
+    Returns:
+    np.ndarray: A numpy array of date strings with timezone abbreviations removed.
+    """
+    vectorized_remove_timezone = np.vectorize(lambda date_str: timezone_pattern.sub('', date_str).strip())
+    cleaned_date_strings = vectorized_remove_timezone(date_strings)
+    return cleaned_date_strings
+
+def parse_dates(date_array: np.ndarray, timezone_pattern: Pattern) -> Tuple[np.ndarray, list]:
+    """
+    Parse the datetime from strings in a numpy array after timezone information has been removed.
+
+    Args:
+    date_array (np.ndarray): Array of datetime strings without timezone information.
+    date_format (str): The format of the datetime strings.
+
+    Returns:
+    Tuple[np.ndarray, list]: Tuple of numpy array with datetime objects and list of indices with invalid dates.
+    """
+    date_no_tmz = remove_timezones(date_array, timezone_pattern)
+
+    parsed_dates = []
+    bad_indices = []
+    
+    for i, date_str in enumerate(date_no_tmz):
+        try:
+            parsed_date = datetime.strptime(date_str, '%b %d, %Y, %I:%M:%S %p')
+            parsed_dates.append(parsed_date)
+        except ValueError:
+            bad_indices.append(i)
+            parsed_dates.append(None)  # Use None as a placeholder for invalid entries
+
+    # Convert list to a numpy array of object type after all dates are processed
+    parsed_dates_array = np.array(parsed_dates, dtype=object)
+    return parsed_dates_array, bad_indices
+    
+def clean_all_columns(arr_data, hidden_char_pattern: Pattern) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Apply the remove_invisible_characters function to all four numpy arrays and return new numpy arrays.
     
@@ -72,11 +98,11 @@ def clean_all_columns(col_1, col_2, col_3, col_4, hidden_char_pattern: Pattern) 
     Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: A tuple of cleaned numpy arrays.
     """
     clean_columns = []
-    for column in (col_1, col_2, col_3, col_4):
+    for column in (arr_data[0], arr_data[1], arr_data[2], arr_data[3]):
         cleaned = np.vectorize(remove_invisible_characters)(column, hidden_char_pattern)
         clean_columns.append(cleaned)
     
-    return tuple(clean_columns)
+    return clean_columns
 
 def convert_to_arrays(data: List[List[str]]) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
@@ -89,4 +115,23 @@ def convert_to_arrays(data: List[List[str]]) -> Tuple[np.ndarray, np.ndarray, np
     - Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: A tuple of numpy arrays.
     """
     arr = np.array(data)
-    return arr[:, 0], arr[:, 1], arr[:, 2], arr[:, 3]
+    return (arr[:, 0], arr[:, 1], arr[:, 2], arr[:, 3])
+
+def remove_indices_from_tuple(data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], indices: List[int]) -> Tuple[np.ndarray, ...]:
+    """
+    Removes specified indices from each numpy array in a tuple.
+
+    Args:
+    - data (Tuple[np.ndarray, ...]): Tuple of numpy arrays, where each array represents a column of data.
+    - indices (List[int]): List of indices to be removed from each array.
+
+    Returns:
+    - Tuple[np.ndarray, ...]: A new tuple of numpy arrays with specified indices removed.
+    """
+    # Convert the list of indices to a numpy array for efficient operations
+    indices_to_remove = np.array(indices)
+    
+    # Use numpy's boolean indexing to create new arrays without the specified indices
+    modified_data = tuple(np.delete(arr, indices_to_remove) for arr in data)
+    
+    return modified_data

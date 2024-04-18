@@ -1,7 +1,7 @@
 import numpy as np
 import regex as re
 from typing import List, Any, Tuple, Pattern
-from self_stats.munger.clean_data_shared import safe_convert_to_float, remove_invisible_characters, parse_date, clean_all_columns
+from self_stats.munger.clean_data_shared import safe_convert_to_float, remove_invisible_characters, parse_dates, clean_all_columns
 
 def type_data(clean_dates: np.ndarray,  timezone_pattern: Pattern):
     """
@@ -37,6 +37,6 @@ def main(video_urls: np.ndarray, video_titles: np.ndarray, channel_titles: np.nd
     # Compile the regex pattern once and then clean/apply data types
     timezone_pattern = re.compile(r'(?<=AM|PM)\s*([A-Z]{2,4})$')
     typed_dates  = type_data(clean_dates, timezone_pattern)
-    processed_data = np.array([clean_video_urls, clean_video_titles, clean_channel_titles, typed_dates]).T
+    processed_data = np.array([clean_video_urls, clean_video_titles, clean_channel_titles, typed_dates])
 
     return processed_data

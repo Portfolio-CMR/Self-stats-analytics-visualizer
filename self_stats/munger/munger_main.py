@@ -1,16 +1,17 @@
 from pathlib import Path
+from typing import List
 from self_stats.munger.input_output import save_to_csv
 from self_stats.munger.search_history_main import main as search_main
 from self_stats.munger.watch_history_main import main as watch_main
 from self_stats.munger.dash_ready_data import trim_date
 
-def main(directory: str, data_source: str, mappings: list) -> None:
+def main(directory: str, data_source: str, mappings: List[str]) -> None:
     process_flag = 0
     if data_source == 'search_history':
-        cleaned_data = search_main(directory)
+        cleaned_data = search_main(directory, mappings)
         process_flag = 1
     elif data_source == 'watch_history':
-        cleaned_data = watch_main(directory)
+        cleaned_data = watch_main(directory, mappings)
         process_flag = 1
 
     if process_flag:
@@ -26,3 +27,4 @@ def main(directory: str, data_source: str, mappings: list) -> None:
     else:
         error_message = "No data processed. Please check that input data is in the specified directory."
         raise OSError(error_message)
+    

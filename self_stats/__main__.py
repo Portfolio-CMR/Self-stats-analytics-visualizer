@@ -7,11 +7,11 @@ def main() -> None:
     Main function that orchestr
     ates the processing of watch history and search history based on file presence.
     """
-    skip_preprocess = True
+    skip_preprocess = False
     directory = 'data'
 
     if not skip_preprocess:
-        directory: str = input("Enter the directory path where your input data is held: ")
+        # directory: str = input("Enter the directory path where your input data is held: ")
         print(f"\Initializing from directory: {directory}...\n")
 
         file_flags: dict = get_file_presence_flags(directory)

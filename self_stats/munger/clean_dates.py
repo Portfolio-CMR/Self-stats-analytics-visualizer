@@ -28,35 +28,32 @@ def convert_to_arrays(data: List[Dict[str, Any]], mappings: List[str]) -> Tuple[
 
     return arrays
 
-import numpy as np
-from datetime import datetime
-from typing import Tuple, List
-
 def parse_dates(date_array: np.ndarray) -> Tuple[np.ndarray, list]:
     """
-    Parse datetime from strings in a numpy array after timezone information has been removed.
+    Parse datetime from strings in a numpy array after timezone information has been removed and adjust to desired format.
     
     Args:
     - date_array (np.ndarray): Array of datetime strings without timezone information.
     
     Returns:
-    - Tuple[np.ndarray, list]: Tuple of numpy array with datetime objects and list of indices with invalid dates.
+    - Tuple[np.ndarray, list]: Tuple of numpy array with datetime objects formatted to year, month, day, hour, and minute,
+                               and list of indices with invalid dates.
     """
-    # Pre-allocate lists for parsed dates and bad indices
-    parsed_dates = [None] * len(date_array)
-    bad_indices = []
+    parsed_dates = [None] * len(date_array)  # Pre-allocate list for parsed dates
+    bad_indices = []  # List to store indices of unparseable dates
 
-    # Process each date string in the array
     for i, date_str in enumerate(date_array):
         try:
-            # Attempt to parse the date string after replacing 'Z' with '+00:00'
-            parsed_dates[i] = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            # Parse the date string, replacing 'Z' with '+00:00' to handle UTC format properly
+            full_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            # Create a new datetime object without seconds and timezone information
+            new_date = datetime(year=full_date.year, month=full_date.month, day=full_date.day,
+                                hour=full_date.hour, minute=full_date.minute)
+            parsed_dates[i] = new_date  # Store the adjusted datetime object
         except ValueError:
-            # Record the index of any unparseable date string
-            bad_indices.append(i)
+            bad_indices.append(i)  # Record the index of any unparseable date string
 
-    # Convert the list to a numpy array of object type
-    parsed_dates_array = np.array(parsed_dates, dtype=object)
+    parsed_dates_array = np.array(parsed_dates, dtype=object)  # Convert list to numpy array
     return parsed_dates_array, bad_indices
 
 def remove_indices_from_tuple(data: Tuple[np.ndarray, ...], indices: List[int]) -> Tuple[np.ndarray, ...]:

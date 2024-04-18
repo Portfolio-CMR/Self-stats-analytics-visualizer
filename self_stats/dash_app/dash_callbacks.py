@@ -154,7 +154,7 @@ def load_data(n: int, path: Union[str, Path]) -> str:
 
 # Main application logic
 def main():
-    path = Path('data/output/dash_ready_watch_data.csv')
+    path = Path('/home/bio/Python_projects/self_stats/data/output/dash_ready_watch_data.csv')
     app = Dash(__name__)
     register_callbacks(app, path)
     app.run_server(debug=True)

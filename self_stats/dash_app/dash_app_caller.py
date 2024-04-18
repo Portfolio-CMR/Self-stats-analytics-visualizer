@@ -13,4 +13,4 @@ def main(path: str | Path) -> None:
     app.run_server(debug=True)  # Running the server within the main function
 
 if __name__ == '__main__':
-    main(Path('/path/to/your/data'))  # Pass the correct path as an argument
+    main(Path('/home/bio/Python_projects/self_stats/data/output/dash_ready_watch_data.csv'))  # Pass the correct path as an argument

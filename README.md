@@ -32,23 +32,13 @@ pip install takeout-insights-visualizer
 
 #### Downloading Your Data from Google Takeout
 
-1. **Visit Google Takeout**:
+- Open your web browser and go to [Google Takeout](https://takeout.google.com/).
+- Google Takeout allows you to export data from your Google account products.
+- Choose the Google products you want data from. Ensure you have selected **"MyActivity"** and **"YouTube and YouTube Music"**
+- Once your archive is ready, Google will notify you via email.
+- Download the archive and extract it.
 
-   - Open your web browser and go to [Google Takeout](https://takeout.google.com/).
-   - Google Takeout allows you to export data from your Google account products.
-
-2. **Select Your Data**:
-
-   - Choose the Google products you want data from. Ensure you have selected **"MyActivity"** and **"YouTube and YouTube Music"**
-
-![MyActivity Example](images/search_download_example.jpg)
-![YouTube Example](images/yt_download_example.jpg)
-
-- You can customize the archive format and the maximum size of the archive.
-
-3. **Download Your Archive**:
-   - Once your archive is ready, Google will notify you via email.
-   - Download the archive and extract it.
+![Google Takeout Demo](gifs/Google_Takeout_instructions.gif)
 
 #### Setting Up the Visualizer
 

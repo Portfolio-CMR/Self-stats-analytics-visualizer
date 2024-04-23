@@ -3,7 +3,7 @@ name: Publish Python Package
 on:
   push:
     branches:
-      - main # Adjust if your default branch has a different name, like 'master'
+      - master # Adjust if your default branch has a different name, like 'master'
 
 jobs:
   build-and-publish:

@@ -1,14 +1,14 @@
-from self_stats.munger.selector import get_file_presence_flags
-from self_stats.munger.munger_main import main as munger_main
-from self_stats.dash_app.dash_app_caller import main as dash_main
+from app.munger.selector import get_file_presence_flags
+from app.munger.munger_main import main as munger_main
+from app.dash_app.dash_app_caller import main as dash_main
 
 def main() -> None:
     """
     Main function that orchestr
     ates the processing of watch history and search history based on file presence.
     """
-    skip_preprocess = False
-    directory = 'data'
+    skip_preprocess = False # This line will be used if the user just wants data viz functionality
+    directory = 'personal_data' # This line skips user input for quicker testing
 
     if not skip_preprocess:
         # directory: str = input("Enter the directory path where your input data is held: ")

@@ -35,6 +35,7 @@ pip install takeout-insights-visualizer
 - Open your web browser and go to [Google Takeout](https://takeout.google.com/).
 - Google Takeout allows you to export data from your Google account products.
 - Choose the Google products you want data from. Ensure you have selected **"MyActivity"** and **"YouTube and YouTube Music"**
+- Change the file format to **JSON**.
 - Once your archive is ready, Google will notify you via email.
 - Download the archive and extract it.
 
@@ -44,7 +45,7 @@ pip install takeout-insights-visualizer
 
 1. **Prepare Your Data**:
 
-   - After extracting your data, place the relevant Google Analytics HTML file(s) in a chosen directory.
+   - After extracting your data, place the relevant Google Analytics JOSN file(s) in a chosen directory.
    - The package will detect specific filenames automatically so ensure they are correctly named:
      - "watch-history.html": initiates YouTube watch history processing.
      - "MyActivity": initiates search history processing.
@@ -97,3 +98,16 @@ For support, feature requests, or to report bugs, please use the repository's is
 ## Why Choose Google Takeout Data Insights Visualizer?
 
 Our tool not only visualizes your data from Google Takeout but also provides a powerful platform to uncover and understand personal trends and usage statistics, empowering you with the knowledge to make informed decisions about your digital privacy and online habits.
+
+# TODO
+
+- Make a blank data folder to submit to github for user access
+- Be more explicit about JSON settings for download
+- Change package name to something different
+- Add plot titles
+- Label axis better
+- Add modules to the init files
+- Document directory names
+- Make module docstrings
+- Leave some more comments throughout the script
+-

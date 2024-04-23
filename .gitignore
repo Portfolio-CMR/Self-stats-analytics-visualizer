@@ -1,7 +1,7 @@
 *.egg-info
-data/*
-self_stats/__pycache__/*
+personal_data/*
+app/__pycache__/*
 tests/__pycache__/*
-self_stats/munger/__pycache__/*
-self_stats/dash_app/__pycache__/*
+app/munger/__pycache__/*
+app/dash_app/__pycache__/*
 Takeout/*

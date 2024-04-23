@@ -1,7 +1,7 @@
 import unittest
 import regex as re
 from datetime import datetime
-from self_stats.munger.search_cleaner import remove_invisible_characters, remove_timezone, parse_date, process_row, clean_and_convert_data
+from app.munger.search_cleaner import remove_invisible_characters, remove_timezone, parse_date, process_row, clean_and_convert_data
 
 class TestYourModule(unittest.TestCase):
     def setUp(self):

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='self_stats',
+    name='app',
     version='0.1.0',
     packages=find_packages(),
     install_requires=[
@@ -36,7 +36,6 @@ setup(
         'python-dateutil==2.9.0.post0',
         'pytz==2024.1',
         'regex==2024.4.16',
-        'requests==2.31.0',
         'retrying==1.3.4',
         'ruptures==1.1.9',
         'scipy==1.13.0',

@@ -41,7 +41,7 @@ def main() -> None:
 
     if viz_flag == 'watch':
         print("Visualizing watch history...\n")
-        dash_main(f'{directory}/output/dash_ready_watch_data.csv')
+        dash_main('data/output/dash_ready_watch_data.csv')
 
 if __name__ == "__main__":
     main()

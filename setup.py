@@ -59,7 +59,6 @@ setup(
         'webencodings==0.5.1',
         'Werkzeug==3.0.2',
         'zipp==3.18.1',
-        '-e git+https://github.com/coltonrobbins73/self_stats.git@2c98cb740f8ea081e162b79ed7884d9ad8ee7b60#egg=self_stats'
     ],
     # Add additional metadata about your package
     author='Colton Robbins',

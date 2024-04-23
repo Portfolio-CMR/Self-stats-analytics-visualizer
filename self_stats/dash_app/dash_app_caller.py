@@ -1,7 +1,8 @@
 from dash import Dash
-import self_stats.dash_app.dash_callbacks as dash_callbacks  # Assuming callbacks are separated
-from self_stats.dash_app.dash_layout import create_layout  # Assuming layout is separated
 from pathlib import Path
+
+import self_stats.dash_app.dash_callbacks as dash_callbacks 
+from self_stats.dash_app.dash_layout import create_layout
 
 def main(path: str | Path) -> None:
     """

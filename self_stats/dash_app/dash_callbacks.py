@@ -11,6 +11,23 @@ from dash.dependencies import Input, Output, State
 
 from self_stats.dash_app.tz_offset import get_utc_offset, adjust_time_by_utc_offset
 
+def load_data(n: int, path: Union[str, Path]) -> str:
+    """
+    Loads and preprocesses data at regular intervals, specified by `n_intervals`.
+    This function reads data from a CSV file specified by `path`, preprocesses it,
+    and returns a JSON string containing the preprocessed data.
+
+    Args:
+        n (int): The number of intervals that have elapsed (unused directly in function).
+        path (str | Path): The file path for the CSV file to be processed.
+
+    Returns:
+        str: A JSON string of the DataFrame containing preprocessed data.
+    """
+    df = pd.read_csv(path)
+    # Assume some preprocessing is done here
+    return df.to_json(date_format='iso', orient='split')
+
 def register_callbacks(app: Dash, path: Union[str, Path]) -> None:
     """
     Registers the callbacks necessary for the Dash application's interactivity.
@@ -168,23 +185,6 @@ def register_callbacks(app: Dash, path: Union[str, Path]) -> None:
         )
 
         return fig
-
-def load_data(n: int, path: Union[str, Path]) -> str:
-    """
-    Loads and preprocesses data at regular intervals, specified by `n_intervals`.
-    This function reads data from a CSV file specified by `path`, preprocesses it,
-    and returns a JSON string containing the preprocessed data.
-
-    Args:
-        n (int): The number of intervals that have elapsed (unused directly in function).
-        path (str | Path): The file path for the CSV file to be processed.
-
-    Returns:
-        str: A JSON string of the DataFrame containing preprocessed data.
-    """
-    df = pd.read_csv(path)
-    # Assume some preprocessing is done here
-    return df.to_json(date_format='iso', orient='split')
 
 def main():
     path = Path('data/output/extracted_watch_history.csv')

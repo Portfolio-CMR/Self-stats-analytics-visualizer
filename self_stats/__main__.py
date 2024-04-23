@@ -1,6 +1,6 @@
-from self_stats_app.munger.selector import get_file_presence_flags
-from self_stats_app.munger.munger_main import main as munger_main
-from self_stats_app.dash_app.dash_app_caller import main as dash_main
+from self_stats.munger.selector import get_file_presence_flags
+from self_stats.munger.munger_main import main as munger_main
+from self_stats.dash_app.dash_app_caller import main as dash_main
 
 def main() -> None:
     """

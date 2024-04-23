@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from self_stats_app.munger.selector import ensure_directory_exists, get_file_presence_flags
+from self_stats.munger.selector import ensure_directory_exists, get_file_presence_flags
 
 class TestSelector(unittest.TestCase):
     def test_ensure_directory_exists(self):

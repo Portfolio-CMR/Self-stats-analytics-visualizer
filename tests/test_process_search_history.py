@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 from bs4 import BeautifulSoup
 
 # Assuming the script's functions are in a module named 'script'
-from self_stats_app.process_search_history import extract_search_data, extract_search_text, extract_date, extract_coordinates
+from self_stats.process_search_history import extract_search_data, extract_search_text, extract_date, extract_coordinates
 
 class TestScript(unittest.TestCase):
     def setUp(self):

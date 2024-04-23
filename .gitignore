@@ -5,8 +5,11 @@ tests/__pycache__/*
 app/munger/__pycache__/*
 app/dash_app/__pycache__/*
 Takeout/*
-self_app/__pycache__/*
+app/__pycache__/*
 tests/__pycache__/*
 self_stats_app/munger/__pycache__/*
 self_stats_app/dash_app/__pycache__/*
 Takeout/*
+self_stats/munger/__pycache__/*
+self_stats/dash_app/__pycache__/*
+self_stats/__pycache__/*

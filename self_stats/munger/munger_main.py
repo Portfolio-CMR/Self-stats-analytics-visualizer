@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import List
 
-from self_stats_app.munger.input_output import save_to_csv
-from self_stats_app.munger.changepoint_analysis import trim_date
-from self_stats_app.munger.parse_and_process import main as parse_and_process
+from self_stats.munger.input_output import save_to_csv
+from self_stats.munger.changepoint_analysis import trim_date
+from self_stats.munger.parse_and_process import main as parse_and_process
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 

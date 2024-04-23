@@ -9,7 +9,7 @@ from plotly.graph_objs import Figure
 from dash import Dash
 from dash.dependencies import Input, Output, State
 
-from app.dash_app.tz_offset import get_utc_offset, adjust_time_by_utc_offset
+from self_stats_app.dash_app.tz_offset import get_utc_offset, adjust_time_by_utc_offset
 
 def load_data(n: int, path: Union[str, Path]) -> str:
     """

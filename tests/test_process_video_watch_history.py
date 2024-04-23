@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 from bs4 import BeautifulSoup
 
 # Assuming the script's functions are in a module named 'video_script'
-from app.process_watch_history import extract_video_data, extract_video_field, extract_date
+from self_stats_app.process_watch_history import extract_video_data, extract_video_field, extract_date
 d
 class TestVideoScript(unittest.TestCase):
     def setUp(self):

@@ -1,12 +1,14 @@
-from dash import Dash
-from dash.dependencies import Input, Output, State
-import plotly.express as px
-import pandas as pd
+from functools import partial
 from io import StringIO
 from pathlib import Path
-from plotly.graph_objs import Figure
 from typing import Union
-from functools import partial
+
+import pandas as pd
+import plotly.express as px
+from plotly.graph_objs import Figure
+from dash import Dash
+from dash.dependencies import Input, Output, State
+
 from self_stats.dash_app.tz_offset import get_utc_offset, adjust_time_by_utc_offset
 
 def register_callbacks(app: Dash, path: Union[str, Path]) -> None:

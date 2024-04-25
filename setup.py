@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='self_stats',
-    version='0.1.1',
+    version='0.0.1',
     packages=find_packages(),
     install_requires=[
         'alabaster==0.7.16',

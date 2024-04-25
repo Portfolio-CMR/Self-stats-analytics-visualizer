@@ -35,7 +35,7 @@ pip install takeout-insights-visualizer
 - Open your web browser and go to [Google Takeout](https://takeout.google.com/).
 - Google Takeout allows you to export data from your Google account products.
 - Choose the Google products you want data from. Ensure you have selected **"MyActivity"** and **"YouTube and YouTube Music"**
-- Change the file format to **JSON**.
+- Change the file format to **JSON**. The default is HTML and will be incompatible with this pipeline.
 - Once your archive is ready, Google will notify you via email.
 - Download the archive and extract it.
 
@@ -102,12 +102,15 @@ Our tool not only visualizes your data from Google Takeout but also provides a p
 # TODO
 
 - Make a blank data folder to submit to github for user access
-- Be more explicit about JSON settings for download
+  - The package version does not need this
 - Change package name to something different
+  - Better to change the repo name and keep the package the same
 - Add plot titles
 - Label axis better
 - Add modules to the init files
 - Document directory names
 - Make module docstrings
 - Leave some more comments throughout the script
--
+- Add logic to retain asset images in installed package
+  - Add assets to package directory and explicitly call for them with a MANIFEST.in file
+  - setup.py should include "package_data" element

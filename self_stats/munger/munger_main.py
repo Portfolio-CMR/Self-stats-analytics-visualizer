@@ -27,11 +27,14 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     print(f"Data processing complete. Results saved to '{directory}/output/dash_ready_{data_source}_data.csv'.\n")
 
     if data_source == 'search':
-        mappings.append('Search Duration')
+        mappings.extend(['Search Duration'])
     if data_source == 'watch':
-        mappings.extend(['Video Duration', 'Short-Form Video'])
-    imputed_data = imputer(dash_ready_data, mappings)
+        mappings.extend(['Video Duration', 'Short-Form Video', 'Video Duration Per Activity Window', 'Video Count Per Activity Window', 'Video Count Per 10 minutes'])
+    imputed_data, metadata = imputer(dash_ready_data, mappings)
+    
     save_to_csv(imputed_data, f'{directory}/output/imputed_{data_source}_data.csv', mappings)
     print(f"Data processing complete. Results saved to '{directory}/output/imputed_{data_source}_data.csv'.\n")
 
+    save_to_csv(metadata, f'{directory}/output/metadata_{data_source}_data.csv', ['Activity Window', 'Duration', 'Count', 'Count Per 10 minutes'])
+    print(f"Metadata saved to '{directory}/output/metadata_{data_source}_data.csv'.\n")
     

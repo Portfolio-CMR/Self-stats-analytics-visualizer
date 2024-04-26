@@ -26,6 +26,10 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     save_to_csv(dash_ready_data, f'{directory}/output/dash_ready_{data_source}_data.csv', mappings)
     print(f"Data processing complete. Results saved to '{directory}/output/dash_ready_{data_source}_data.csv'.\n")
 
+    if data_source == 'search':
+        mappings.append('Search Duration')
+    if data_source == 'watch':
+        mappings.extend(['Video Duration', 'Short-Form Video'])
     imputed_data = imputer(dash_ready_data, mappings)
     save_to_csv(imputed_data, f'{directory}/output/imputed_{data_source}_data.csv', mappings)
     print(f"Data processing complete. Results saved to '{directory}/output/imputed_{data_source}_data.csv'.\n")

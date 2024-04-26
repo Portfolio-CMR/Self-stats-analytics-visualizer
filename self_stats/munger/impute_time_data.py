@@ -2,42 +2,44 @@ from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 import numpy as np
 
-def compute_difference(previous: datetime, current: datetime) -> Optional[float]:
+def compute_difference(previous: datetime, current: datetime, interrupt_time: int) -> Optional[float]:
     """
     Calculate the time difference in minutes between two datetime objects.
     
     Parameters:
         previous (datetime): The earlier datetime object.
         current (datetime): The later datetime object.
+        interrupt_time (int): The maximum time difference in minutes to consider as an interruption.
     
     Returns:
-        Optional[float]: The time difference in minutes if less than or equal to 60 minutes; otherwise, None.
+        Optional[float]: The time difference in minutes if less than or equal to the interrupt_time; otherwise, None.
     """
     try:
         difference = current - previous
         difference_in_minutes = abs(round(difference.total_seconds() / 60, 2))
-        if difference_in_minutes > 60:
+        if difference_in_minutes > interrupt_time:
             return None
         return difference_in_minutes
     except TypeError:
         return None
 
-def calculate_differences(datetimes: List[datetime]) -> List[Optional[float]]:
+def calculate_differences(datetimes: List[datetime], interrupt_time: int) -> List[Optional[float]]:
     """
     Calculate the time differences in minutes between consecutive datetime entries in a list.
     
     Parameters:
         datetimes (List[datetime]): A list of datetime objects in chronological order.
-    
+        interrupt_time (int): The maximum time difference in minutes to consider as an interruption.
+        
     Returns:
         List[Optional[float]]: A list of the time differences in minutes between each consecutive datetime.
-                                Differences greater than 60 minutes are returned as None.
+                                Differences greater than the interrupt time are returned as None.
     """
     time_differences = [None]
     previous_datetime = datetimes[0]
 
     for current_datetime in datetimes[1:]:
-        diff = compute_difference(previous_datetime, current_datetime)
+        diff = compute_difference(previous_datetime, current_datetime, interrupt_time)
         time_differences.append(diff)
         previous_datetime = current_datetime
 
@@ -90,7 +92,7 @@ def identify_activity_windows(differences: List[Optional[float]]) -> List[Tuple[
             start = i  # Start of a new range if preceded by None
         elif differences[i] is None and start is not None:
             if i-1 > start:  # Check if the range has more than one element
-                windows.append((start, i - 1))
+                windows.append((int(start), int(i - 1)))
             start = None  # End the current range
     
     return windows
@@ -129,15 +131,18 @@ def calculate_window_durations(timestamps: List[datetime], windows: List[Tuple[i
         List[float]: A list of durations for each window in minutes.
     """
     durations = []
+    window_timestamps = []
     for end, start in windows:
         if start < len(timestamps) and end < len(timestamps):
-            duration = (timestamps[end] - timestamps[start]).total_seconds() / 60  # Duration in minutes
+            duration = round((timestamps[end] - timestamps[start]).total_seconds() / 60, 3)  # Duration in minutes
             durations.append(duration)
+            window_timestamps.append(timestamps[start])  # Append the start timestamp for each window for future indexing in plots
         else:
             # Handle out-of-range indices
             durations.append(0.0)  # Could be changed to None or another placeholder to indicate an invalid range
+            window_timestamps.append(timestamps[start])  # Append the start timestamp for each window for future indexing in plots
 
-    return durations
+    return durations, window_timestamps
 
 def count_entries_in_windows(timestamps: List[datetime], windows: List[Tuple[int, int]]) -> List[int]:
     """
@@ -174,10 +179,12 @@ def calculate_average_durations_per_entry(durations: List[float], counts: List[i
     """
     all_window_counts_per_10_minutes = []
     for duration, count in zip(durations, counts):
+        if counts == 2:
+            counts_per_10_minutes = None # Quick clicks distort the data so we will ignore them
         if duration > 0:
             counts_per_10_minutes = round(10 * (count / duration), 3)
         else:
-            counts_per_10_minutes = 0  # Assign 0 or None if count is zero to indicate no entries or undefined
+            counts_per_10_minutes = None  # Assign 0 or None if count is zero to indicate no entries or undefined
         all_window_counts_per_10_minutes.append(counts_per_10_minutes)
 
     return all_window_counts_per_10_minutes
@@ -193,12 +200,14 @@ def main(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], mappin
     else:
         raise ValueError("Invalid mapping value")
 
-    differences = calculate_differences(timestamps)
+    interrupt_time = 45
+
+    differences = calculate_differences(timestamps, interrupt_time)
     paired_differences = pair_differences_with_videos(timestamps, differences)
     
     windows = identify_activity_windows(differences)
     grouped_timestamps = group_timestamps_by_windows(timestamps, windows)
-    window_durations = calculate_window_durations(timestamps, windows)
+    window_durations, window_timestamps = calculate_window_durations(timestamps, windows)
     window_counts = count_entries_in_windows(timestamps, windows)
     counts_over_duration = calculate_average_durations_per_entry(window_durations, window_counts)
 
@@ -206,9 +215,9 @@ def main(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], mappin
         # Create flags and append to imputed_arr
         short_flags = flag_short_videos([pair[1] for pair in paired_differences]) 
         imputed_arr = (*arr_data, np.array(differences), np.array(short_flags),)
-        metadata = (np.array(windows), np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
+        metadata = (np.array(windows)[:,1], np.array(windows)[:,0], np.array(window_timestamps), np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
     else:
         imputed_arr = (*arr_data, np.array(differences))
-        metadata = (np.array(windows), np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
+        metadata = (np.array(windows)[:,1], np.array(windows)[:,0], np.array(window_timestamps), np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
 
     return imputed_arr, metadata

@@ -6,7 +6,7 @@ Welcome to **Self Stats Google Takeout Data Insights Visualizer**! This Python p
 
 ## Features 🌟
 
-- **Custom Data Processing**: Import and analyze your personal Google Analytics data from Google Takeout.
+- **Automated Data Processing**: Import and analyze your personal Google Analytics data from Google Takeout.
 - **Interactive Visualizations**: Engage with your data through beautifully designed graphs and interactive charts.
 - **Insight Discovery**: Discover trends, patterns, and more from your personal usage data.
 - **User-Friendly Interface**: Easy setup and intuitive controls make your data exploration enjoyable and straightforward.
@@ -25,7 +25,7 @@ To use the Google Takeout Data Insights Visualizer, you will need:
 Install this package using pip:
 
 ```bash
-pip install takeout-insights-visualizer
+pip install self_stats
 ```
 
 ### Data Preparation
@@ -35,6 +35,7 @@ pip install takeout-insights-visualizer
 - Open your web browser and go to [Google Takeout](https://takeout.google.com/).
 - Google Takeout allows you to export data from your Google account products.
 - Choose the Google products you want data from. Ensure you have selected **"MyActivity"** and **"YouTube and YouTube Music"**
+- Change the file format to **JSON**. The default is HTML and will be incompatible with this pipeline.
 - Once your archive is ready, Google will notify you via email.
 - Download the archive and extract it.
 
@@ -44,29 +45,25 @@ pip install takeout-insights-visualizer
 
 1. **Prepare Your Data**:
 
-   - After extracting your data, place the relevant Google Analytics HTML file(s) in a chosen directory.
+   - After extracting your data, place the relevant Google Analytics JOSN file(s) in a chosen directory.
    - The package will detect specific filenames automatically so ensure they are correctly named:
      - "watch-history.html": initiates YouTube watch history processing.
      - "MyActivity": initiates search history processing.
-   - The package will ask you to specify the directory with the data.
-   - Processed files will be populated in the chosen directory.
-
-2. **Configuration**:
-   - Modify any necessary settings in `config.py` to customize how data is processed and visualized.
 
 ### Usage
 
 Run the visualization tool with:
 
 ```bash
-python -m takeout_visualizer
+python -m self_stats
 ```
 
-Choose the analytics files and types of visualizations through the command line interface.
+- The package will ask you to specify the directory with the data.
+- Processed files will be populated in the chosen directory.
 
 ## Example Visualizations 📈
 
-- **Activity Heatmaps**: Visualize your online activity patterns over time.
+- **Time Series Analysis**: Analyze activity trends over time.
 - **Service Interaction Overview**: Understand how you use different Google services.
 - **Data Footprint Analysis**: Explore the volume and type of data stored across various services.
 
@@ -97,3 +94,15 @@ For support, feature requests, or to report bugs, please use the repository's is
 ## Why Choose Google Takeout Data Insights Visualizer?
 
 Our tool not only visualizes your data from Google Takeout but also provides a powerful platform to uncover and understand personal trends and usage statistics, empowering you with the knowledge to make informed decisions about your digital privacy and online habits.
+
+# TODO
+
+- Add plot titles
+- Label axis better
+- Add modules to the init files
+- Document directory names
+- Make module docstrings
+- Leave some more comments throughout the script
+- Add logic to retain asset images in installed package
+  - Add assets to package directory and explicitly call for them with a MANIFEST.in file
+  - setup.py should include "package_data" element

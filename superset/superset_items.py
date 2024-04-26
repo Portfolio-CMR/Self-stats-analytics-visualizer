@@ -96,8 +96,17 @@ class DashboardItems:
     }
 
 
+    #TODO: Update this function to customize the dataset you want to use
     @staticmethod
     def create_dataset():
+        """
+        Generates the configuration for a new dataset.
+        
+        Returns:
+            dict: A dictionary containing the settings for creating a new dataset.
+                  It includes details like database connection, table name, and schema.
+        
+        """
         return{
             "always_filter_main_dttm": False,
             "database": 1,

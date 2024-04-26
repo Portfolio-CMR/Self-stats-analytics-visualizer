@@ -7,6 +7,7 @@ import json
 from superset_items import DashboardItems
 
 API_URL = "http://localhost:8088/api/v1"
+DB_PATH = "sqlite:////your/path/here/example.db"
 app = create_app()
 
 
@@ -20,7 +21,7 @@ with app.app_context():
         # Create and add the SQLite database to Superset only if it does not exist
         database = Database(
             database_name="SQLite Example",
-            sqlalchemy_uri="sqlite:////Users/ivanpedroza/Documents/Dashboard/example.db"
+            sqlalchemy_uri=DB_PATH
         )
         db.session.add(database)
         db.session.commit()

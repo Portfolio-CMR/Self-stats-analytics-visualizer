@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, urlparse
 
-from self_stats.munger.clean_dates import convert_to_arrays, main as cleaner_main
+from self_stats.munger.process_dates import convert_to_arrays, clean_dates_main
 from self_stats.munger.input_output import read_json_file
 
 def extract_coordinates(location_url: str) -> Tuple[Optional[float], Optional[float]]:
@@ -101,5 +101,5 @@ def main(directory: str, data_source: str | Path, mappings: List[str]) -> None:
         extracted_data = extract_watch_information(json_data)
 
     arr_data = convert_to_arrays(extracted_data, mappings)
-    cleaned_data = cleaner_main(arr_data, mappings)
+    cleaned_data = clean_dates_main(arr_data, mappings)
     return cleaned_data

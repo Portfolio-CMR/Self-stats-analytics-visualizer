@@ -131,15 +131,18 @@ def calculate_window_durations(timestamps: List[datetime], windows: List[Tuple[i
         List[float]: A list of durations for each window in minutes.
     """
     durations = []
+    window_timestamps = []
     for end, start in windows:
         if start < len(timestamps) and end < len(timestamps):
             duration = round((timestamps[end] - timestamps[start]).total_seconds() / 60, 3)  # Duration in minutes
             durations.append(duration)
+            window_timestamps.append(timestamps[start])  # Append the start timestamp for each window for future indexing in plots
         else:
             # Handle out-of-range indices
             durations.append(0.0)  # Could be changed to None or another placeholder to indicate an invalid range
+            window_timestamps.append(timestamps[start])  # Append the start timestamp for each window for future indexing in plots
 
-    return durations
+    return durations, window_timestamps
 
 def count_entries_in_windows(timestamps: List[datetime], windows: List[Tuple[int, int]]) -> List[int]:
     """
@@ -204,7 +207,7 @@ def main(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], mappin
     
     windows = identify_activity_windows(differences)
     grouped_timestamps = group_timestamps_by_windows(timestamps, windows)
-    window_durations = calculate_window_durations(timestamps, windows)
+    window_durations, window_timestamps = calculate_window_durations(timestamps, windows)
     window_counts = count_entries_in_windows(timestamps, windows)
     counts_over_duration = calculate_average_durations_per_entry(window_durations, window_counts)
 
@@ -212,9 +215,9 @@ def main(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], mappin
         # Create flags and append to imputed_arr
         short_flags = flag_short_videos([pair[1] for pair in paired_differences]) 
         imputed_arr = (*arr_data, np.array(differences), np.array(short_flags),)
-        metadata = (np.array(windows)[:,1], np.array(windows)[:,0], np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
+        metadata = (np.array(windows)[:,1], np.array(windows)[:,0], np.array(window_timestamps), np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
     else:
         imputed_arr = (*arr_data, np.array(differences))
-        metadata = (np.array(windows)[:,1], np.array(windows)[:,0], np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
+        metadata = (np.array(windows)[:,1], np.array(windows)[:,0], np.array(window_timestamps), np.array(window_durations), np.array(window_counts), np.array(counts_over_duration))
 
     return imputed_arr, metadata

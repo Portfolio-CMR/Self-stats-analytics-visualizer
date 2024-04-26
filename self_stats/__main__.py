@@ -8,10 +8,10 @@ def main() -> None:
     ates the processing of watch history and search history based on file presence.
     """
     skip_preprocess = False # This line will be used if the user just wants data viz functionality
-    # directory = 'personal_data' # This line skips user input for quicker testing
+    directory = 'personal_data' # This line skips user input for quicker testing
 
     if not skip_preprocess:
-        directory: str = input("Enter the directory path where your input data is held: ")
+        # directory: str = input("Enter the directory path where your input data is held: ")
         print(f"\Initializing from directory: {directory}...\n")
 
         file_flags: dict = get_file_presence_flags(directory)

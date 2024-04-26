@@ -48,7 +48,7 @@ def parse_dates(date_array: np.ndarray) -> Tuple[np.ndarray, list]:
             full_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
             # Create a new datetime object without seconds and timezone information
             new_date = datetime(year=full_date.year, month=full_date.month, day=full_date.day,
-                                hour=full_date.hour, minute=full_date.minute)
+                                hour=full_date.hour, minute=full_date.minute, second=full_date.second)
             parsed_dates[i] = new_date  # Store the adjusted datetime object
         except ValueError:
             bad_indices.append(i)  # Record the index of any unparseable date string

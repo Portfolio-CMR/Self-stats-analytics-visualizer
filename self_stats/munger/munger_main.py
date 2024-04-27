@@ -4,7 +4,9 @@ from typing import List
 from self_stats.munger.input_output import save_to_csv
 from self_stats.munger.process_dates import trim_date
 from self_stats.munger.parse_and_process import main as parse_and_process
+from self_stats.munger.add_date_columns import main as add_date_columns
 from self_stats.munger.impute_time_data import main as imputer
+
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
@@ -23,15 +25,16 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     save_to_csv(cleaned_data, f'{directory}/output/extracted_{data_source}_history.csv', mappings)
     print(f"Search data extraction complete. Results saved to '{directory}/output/extracted_{data_source}_data.csv'.\n")
     
-    dash_ready_data = trim_date(cleaned_data, mappings)
-    save_to_csv(dash_ready_data, f'{directory}/output/dash_ready_{data_source}_data.csv', mappings)
-    print(f"Data processing complete. Results saved to '{directory}/output/dash_ready_{data_source}_data.csv'.\n")
+    arr_data_trimmed = trim_date(cleaned_data, mappings)
+
+    mappings.extend(['Weekday', 'Hour', 'Date Only'])
+    arr_data_dated = add_date_columns(arr_data_trimmed, mappings)
 
     if data_source == 'search':
         mappings.extend(['Search Duration'])
     if data_source == 'watch':
-        mappings.extend(['Video Duration', 'Short-Form Video', 'Video Duration Per Activity Window', 'Video Count Per Activity Window', 'Video Count Per 10 minutes'])
-    imputed_data, metadata = imputer(dash_ready_data, mappings)
+        mappings.extend(['Video Duration', 'Short-Form Video'])
+    imputed_data, metadata = imputer(arr_data_dated, mappings)
     
     save_to_csv(imputed_data, f'{directory}/output/imputed_{data_source}_data.csv', mappings)
     print(f"Data processing complete. Results saved to '{directory}/output/imputed_{data_source}_data.csv'.\n")

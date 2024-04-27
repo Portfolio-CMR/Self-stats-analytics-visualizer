@@ -1,4 +1,4 @@
-from self_stats.munger.selector import get_file_presence_flags
+from self_stats.munger.input_output import get_file_presence_flags
 from self_stats.munger.munger_main import main as munger_main
 from self_stats.dash_app.dash_app_caller import setup_app, app
 
@@ -37,12 +37,12 @@ def main() -> None:
     
     #TODO Implement dash visualization sub-module here
 
-    viz_flag = 'watch'
+    # viz_flag = 'watch'
 
-    if viz_flag == 'watch':
-        print("Visualizing watch history...\n")
-        setup_app(f'{directory}/output/dash_ready_watch_data.csv')
-        app.run_server(debug=False)
+    # if viz_flag == 'watch':
+    #     print("Visualizing watch history...\n")
+    #     setup_app(f'{directory}/output/dash_ready_watch_data.csv')
+    #     app.run_server(debug=False)
 
 if __name__ == "__main__":
     main()

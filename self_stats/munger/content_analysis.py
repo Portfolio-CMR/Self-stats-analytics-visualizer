@@ -5,9 +5,13 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
-from typing import List, Tuple, Counter
+from typing import List, Tuple, Counter, Dict, Any
 from collections import Counter
 import pandas as pd
+
+import spacy
+
+import re
 
 # Preprocessing
 
@@ -163,14 +167,27 @@ def analyze_search_queries(tokens: List[str], data: pd.DataFrame, query: str, ca
     
     return results
 
+# Load a pre-trained NLP model
+nlp = spacy.load("en_core_web_sm")
+
+def extract_topic(query: str) -> str:
+    doc = nlp(query)
+    # Example: use noun chunks as crude topic identifiers
+    topics = [chunk.text for chunk in doc.noun_chunks]
+    return ', '.join(topics) if topics else 'General'
+
 if __name__ == "__main__":
     # Example usage
-    data = pd.read_csv('search_history.csv')
-    category_data = pd.read_csv('category_data.csv')
+    table = pd.read_csv('personal_data/output/dash_ready_search_data.csv')
+    data = [s.replace("Searched for", "", 1) for s in table['Text Title'] if s.startswith("Searched")]
+    data = data[:1000]
     
     # Preprocess search queries
-    tokens = [preprocess_query(query) for query in data['query']]
+    tokens = [preprocess_query(query) for query in data]
     
+    category_data = [extract_topic(query) for query in data]
+
+
     # Analyze search queries
     query = 'machine learning'
     results = analyze_search_queries(tokens, data, query, category_data)

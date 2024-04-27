@@ -200,7 +200,7 @@ def main(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], mappin
     else:
         raise ValueError("Invalid mapping value")
 
-    interrupt_time = 45
+    interrupt_time = 20 # Maximum time difference in minutes to consider as an interruption
 
     differences = calculate_differences(timestamps, interrupt_time)
     paired_differences = pair_differences_with_videos(timestamps, differences)

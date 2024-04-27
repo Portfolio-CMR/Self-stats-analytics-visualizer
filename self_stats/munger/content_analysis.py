@@ -1,203 +1,188 @@
-from typing import List
-import string
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-
-from typing import List, Tuple, Counter, Dict, Any
+from typing import List, Tuple, Dict, Any
 from collections import Counter
-import pandas as pd
-
-import spacy
-
 import re
+from urllib.parse import urlparse
 
-# Preprocessing
+import pandas as pd
+import spacy
+import tldextract
 
-# Download necessary NLTK resources
-nltk.download('punkt')
-nltk.download('stopwords')
-
-def clean_text(text: str) -> str:
+def extract_search_queries(data: pd.DataFrame) -> List[str]:
     """
-    Convert text to lowercase and remove punctuation.
+    Extract search queries from the dataframe.
     
     Args:
-    text (str): The text to clean.
+    data (pd.DataFrame): The dataframe containing the entries.
     
     Returns:
-    str: The cleaned text.
+    List[str]: A list of search queries.
     """
-    text = text.lower()  # Convert to lowercase
-    text = text.translate(str.maketrans('', '', string.punctuation))  # Remove punctuation
-    return text
+    return [s.replace("Searched for ", "", 1) for s in data['Text Title'] if s.startswith("Searched")][:1000]
 
-def tokenize_text(text: str) -> List[str]:
+def extract_visited_sites(data: pd.DataFrame) -> List[str]:    
     """
-    Tokenize the text into words.
+    Extract visited site entries from the dataframe.
     
     Args:
-    text (str): The text to tokenize.
+    data (pd.DataFrame): The dataframe containing the entries.
     
     Returns:
-    List[str]: A list of words (tokens).
+    List[str]: A list of visited site URLs.
     """
-    tokens = word_tokenize(text)
+    return [s.replace("Visited ", "", 1) for s in data['Text Title'] if s.startswith("Visited")][-100:]
+
+def extract_homepage(url: str) -> str:
+    """
+    Placeholder function for extracting the homepage from a URL.
+    
+    Args:
+    url (str): The URL from which to extract the homepage.
+    
+    Returns:
+    str: The extracted homepage.
+    """
+    # Assume there's some implementation here
+    return url  # Placeholder return
+
+# def count_elements(texts: List[str]) -> List[str]:
+#     """
+#     Process a list of texts (e.g., cleaning, tokenizing).
+    
+#     Args:
+#     texts (List[str]): The list of texts to process.
+    
+#     Returns:
+#     List[str]: The processed text tokens.
+#     """
+#     from collections import Counter
+#     # Placeholder for actual text processing logic
+#     return list(Counter(texts).elements())
+
+def process_texts(texts: List[str], nlp: Any) -> List[str]:
+    """
+    Process a list of texts using spaCy to tokenize and clean the text by removing stopwords, punctuation,
+    and any empty strings. Assumes that the spaCy model is loaded and available as 'nlp'.
+    
+    Args:
+        texts (List[str]): A list of texts to process.
+    
+    Returns:
+        List[str]: A list of cleaned tokens from all documents.
+    
+    Note:
+        This function requires the spaCy library and a model to be loaded with 'nlp'.
+        It disables parser and named entity recognition for efficiency during tokenization.
+    """
+    tokens = []
+    for doc in nlp.pipe(texts, disable=["parser", "ner"]):  # We only need tokenization and stopwords, disable the rest for efficiency
+        # Process each document
+        doc_tokens = [token.text.lower() for token in doc if not token.is_stop and not token.is_punct and token.text.strip() != '']
+        tokens.extend(doc_tokens)
     return tokens
 
-def remove_stop_words(tokens: List[str]) -> List[str]:
+def extract_homepage_main(url):
     """
-    Remove common English stop words from a list of tokens.
+    Extracts the homepage name from a given URL, keeping the top-level domain but excluding the scheme and 'www.' prefix.
     
     Args:
-    tokens (List[str]): The list of tokens from which to remove stop words.
-    
-    Returns:
-    List[str]: A list of tokens with stop words removed.
-    """
-    stop_words = set(stopwords.words('english'))
-    filtered_tokens = [token for token in tokens if token not in stop_words]
-    return filtered_tokens
+    url (str): The URL from which to extract the homepage name.
 
-def stem_tokens(tokens: List[str]) -> List[str]:
+    Returns:
+    str: The homepage name including the top-level domain, but without the scheme or 'www.' prefix.
     """
-    Apply stemming to a list of tokens using the Porter stemming algorithm.
+    if is_url(url) is False:
+        return extract_homepage_alt_form(url)
+    else:
+        return extract_homepage_from_url(url) 
+
+def extract_homepage_from_url(url):
+    parsed_url = urlparse(url)
+    netloc = parsed_url.netloc
+    print("Using urlparse:", netloc)
+    
+    # Using tldextract to get more accurate domain extraction
+    extracted = tldextract.extract(url)
+    # Reconstructs the domain from its components
+    domain = f"{extracted.domain}.{extracted.suffix}"
+
+    return domain
+
+def is_url(text):
+    """
+    Checks if the provided string starts with a common web protocol ('http://' or 'https://').
+
+    Args:
+    url (str): The string to check.
+
+    Returns:
+    bool: True if the string starts with 'http://' or 'https://', False otherwise.
+    """
+    return text.startswith(('http://', 'https://'))
+
+def extract_homepage_alt_form(text):
+    """
+    Extracts the relevant part of a string based on delimiters and specific rules.
     
     Args:
-    tokens (List[str]): The list of tokens to stem.
-    
+    text (str): The input text from which to extract information.
+
     Returns:
-    List[str]: A list of stemmed tokens.
+    str or None: The extracted text following the rules, or None if the rules exclude the text.
     """
-    stemmer = PorterStemmer()
-    stemmed_tokens = [stemmer.stem(token) for token in tokens]
-    return stemmed_tokens
+    # Split the text by " - " or " | " and pick the last element
+    parts = re.split(r' \- | \| ', text)
+    result = parts[-1].strip()
 
-def preprocess_query(query: str) -> List[str]:
-    """
-    Preprocess a query by cleaning, tokenizing, removing stop words, and stemming.
-    
-    Args:
-    query (str): The search query to preprocess.
-    
-    Returns:
-    List[str]: A list of processed tokens.
-    """
-    cleaned = clean_text(query)
-    tokens = tokenize_text(cleaned)
-    tokens_no_stop = remove_stop_words(tokens)
-    stemmed_tokens = stem_tokens(tokens_no_stop)
-    return stemmed_tokens
+    # Check if result ends with "..." or starts with any internet protocol
+    if result.endswith('...') or is_url(result) or len(parts) == 1:
+        return None
 
-# Data exploration
-####################################################################################################
+    return result
 
-def get_word_frequency(tokens: List[str], num_words: int = 20) -> List[Tuple[str, int]]:
-    """
-    Get the frequency of the top `num_words` most common words in `tokens`.
-    
-    Args:
-    tokens (List[str]): A list of all tokens from the dataset.
-    num_words (int): The number of top words to display.
-    
-    Returns:
-    List[Tuple[str, int]]: A list of tuples where each tuple is (word, frequency).
-    """
-    word_counts = Counter(tokens)
-    most_common_words = word_counts.most_common(num_words)
-    return most_common_words
+# if __name__ == "__main__":
+#     # Example usage
+#     table = pd.read_csv('personal_data/output/dash_ready_search_data.csv')
+#     search_queries = [s.replace("Searched for ", "", 1) for s in table['Text Title'] if s.startswith("Searched")]
+#     search_queries = search_queries[:1000]
 
-def compute_query_trends(data: pd.DataFrame, query: str) -> pd.Series:
-    """
-    Compute the trend of occurrences for a specific query over time.
-    
-    Args:
-    data (pd.DataFrame): DataFrame with 'date' and 'query' columns.
-    query (str): Specific query to analyze.
-    
-    Returns:
-    pd.Series: A time series of the count of occurrences.
-    """
-    df = data[data['query'].str.contains(query, case=False)]
-    trend_data = df.resample('M', on='date').size()  # 'M' for monthly frequency
-    return trend_data
+#     visited_sites = [s.replace("Visited ", "", 1) for s in table['Text Title'] if s.startswith("Visited")]
+#     visited_sites = visited_sites[-100:]
 
-def get_category_distribution(data: pd.DataFrame) -> pd.Series:
-    """
-    Get the distribution of queries across categories.
-    
-    Args:
-    data (pd.DataFrame): DataFrame with a 'category' column.
-    
-    Returns:
-    pd.Series: Counts of queries in each category.
-    """
-    category_counts = data['category'].value_counts()
-    return category_counts
+#     homepages = [extract_homepage_main(site) for site in visited_sites]
 
-def analyze_search_queries(tokens: List[str], data: pd.DataFrame, query: str, category_data: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Analyze search queries by performing frequency analysis, trend analysis, and categorical analysis.
-    
-    Args:
-    tokens (List[str]): A list of all tokens from the dataset for frequency analysis.
-    data (pd.DataFrame): DataFrame with 'date' and 'query' columns for trend analysis.
-    query (str): Specific query to analyze for trend analysis.
-    category_data (pd.DataFrame): DataFrame with 'category' column for category distribution analysis.
-    
-    Returns:
-    Dict[str, Any]: A dictionary containing results of the analyses with keys 'frequency', 'trends', and 'categories'.
-    """
-    # Frequency analysis of words
-    word_frequency = get_word_frequency(tokens)
-    
-    # Trend analysis of a specific query
-    query_trends = compute_query_trends(data, query)
-    
-    # Categorical distribution of queries
-    category_distribution = get_category_distribution(category_data)
-    
-    # Compile all results into a dictionary
-    results = {
-        'frequency': word_frequency,
-        'trends': query_trends,
-        'categories': category_distribution
-    }
-    
-    return results
+#     # Get cleaned tokens
+#     cleaned_tokens = process_texts(search_queries)
 
-# Load a pre-trained NLP model
-nlp = spacy.load("en_core_web_sm")
+#     # Count the frequency of each token
+#     token_frequency = Counter(cleaned_tokens)
 
-def extract_topic(query: str) -> str:
-    doc = nlp(query)
-    # Example: use noun chunks as crude topic identifiers
-    topics = [chunk.text for chunk in doc.noun_chunks]
-    return ', '.join(topics) if topics else 'General'
+#     out = pd.DataFrame({
+#         'visited': visited_sites, 
+#         'homepage': homepages
+#     })
+
+#     token_frequency_df = pd.DataFrame(token_frequency.items(), columns=['token', 'frequency'])
+
+#     # Sort the DataFrame by 'frequency' column in descending order
+#     token_frequency_df = token_frequency_df.sort_values(by='frequency', ascending=False)
+
+#     out.to_csv('personal_data/output/visited_homepages.csv', index=False)
+#     token_frequency_df.to_csv('personal_data/output/search_token_frequency.csv', index=False)
+
+# # Load the English tokenizer, tagger, parser, NER, and word vectors
+# nlp = spacy.load("en_core_web_sm")
 
 if __name__ == "__main__":
-    # Example usage
+    nlp = spacy.load("en_core_web_sm")
+
     table = pd.read_csv('personal_data/output/dash_ready_search_data.csv')
-    data = [s.replace("Searched for", "", 1) for s in table['Text Title'] if s.startswith("Searched")]
-    data = data[:1000]
-    
-    # Preprocess search queries
-    tokens = [preprocess_query(query) for query in data]
-    
-    category_data = [extract_topic(query) for query in data]
-
-
-    # Analyze search queries
-    query = 'machine learning'
-    results = analyze_search_queries(tokens, data, query, category_data)
-    
-    print("Frequency analysis:")
-    for word, freq in results['frequency']:
-        print(f"{word}: {freq}")
-    
-    print("\nTrend analysis:")
-    print(results['trends'])
-    
-    print("\nCategory distribution:")
-    print(results['categories'])
+    search_queries = extract_search_queries(table)
+    visited_sites = extract_visited_sites(table)
+    homepages = [extract_homepage(site) for site in visited_sites]
+    cleaned_tokens = process_texts(search_queries, nlp)
+    counted_tokens = Counter(cleaned_tokens)
+    token_frequency = pd.DataFrame(counted_tokens, columns=['token', 'frequency']).value_counts().reset_index(name='frequency')
+    token_frequency = token_frequency.sort_values(by='frequency', ascending=False)
+    visited_data = pd.DataFrame({'visited': visited_sites, 'homepage': homepages})
+    visited_data.to_csv('personal_data/output/visited_homepages.csv')
+    token_frequency.to_csv('personal_data/output/search_token_frequency.csv')

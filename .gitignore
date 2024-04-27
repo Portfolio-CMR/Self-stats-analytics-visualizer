@@ -13,3 +13,13 @@ Takeout/*
 self_stats/munger/__pycache__/*
 self_stats/dash_app/__pycache__/*
 self_stats/__pycache__/*
+
+# Ignore MacOS system files
+.DS_Store
+
+# Ignore specific data files
+extracted_watch_history.csv
+watch-history.json
+
+# Ignore configuration files
+superset_config.py

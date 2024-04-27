@@ -4,6 +4,7 @@ import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+
 def read_json_file(file_path: str) -> List[Dict[str, Any]]:
     """
     Loads JSON data from a specified file.

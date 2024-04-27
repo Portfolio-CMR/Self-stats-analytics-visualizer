@@ -13,6 +13,7 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     elif mappings[0] == 'Video URL':
         data_source = 'watch'
 
+
     cleaned_data = parse_and_process(directory, input_file_name, mappings)
 
     out_dir = Path(f'{directory}/output')

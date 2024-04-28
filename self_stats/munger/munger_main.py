@@ -8,7 +8,6 @@ from self_stats.munger.add_date_columns import main as add_date_columns
 from self_stats.munger.impute_time_data import main as imputer
 from self_stats.munger.content_analysis import main as content_analysis
 
-
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
     if mappings[0] == 'Text Title':
@@ -16,9 +15,9 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     elif mappings[0] == 'Video URL':
         data_source = 'watch'
 
-    print("\n\n********************************************************************\n\n")
-    print(f"\n\n*****************  Processing {data_source} history...  ********************\n\n")
-    print("\n\n********************************************************************\n\n")
+    print("\n********************************************************************")
+    print(f"*****************  Processing {data_source} history...  ********************")
+    print("********************************************************************\n")
 
     cleaned_data = parse_and_process(directory, input_file_name, mappings)
 
@@ -45,10 +44,6 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     
     print("Executing keyword analysis. This may take a moment...\n")
 
-    if data_source == 'search':
-        mappings.extend(['Search Terms', 'Domains Visited'])
-    if data_source == 'watch':
-        mappings.extend(['Title Terms'])
     visited_sites, tokens_per_date = content_analysis(imputed_data, mappings)
 
     print(f"\n**************  Completed {data_source} history processing!  *********************\n")

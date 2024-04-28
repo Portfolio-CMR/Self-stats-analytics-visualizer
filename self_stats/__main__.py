@@ -12,7 +12,7 @@ def main() -> None:
     # this option will be make available through the command line arguments at a later point
     if not skip_preprocess:
         # directory: str = input("Enter the directory path where your input data is held: ")
-        print(f"\Initializing from directory: {directory}...\n")
+        print(f"\nInitializing from directory: {directory}...\n")
 
         file_flags: dict = get_file_presence_flags(directory)
 

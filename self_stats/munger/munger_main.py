@@ -6,6 +6,7 @@ from self_stats.munger.process_dates import trim_date
 from self_stats.munger.parse_and_process import main as parse_and_process
 from self_stats.munger.add_date_columns import main as add_date_columns
 from self_stats.munger.impute_time_data import main as imputer
+from self_stats.munger.content_analysis import main as content_analysis
 
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
@@ -36,6 +37,12 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
         mappings.extend(['Video Duration', 'Short-Form Video'])
     imputed_data, metadata = imputer(arr_data_dated, mappings)
     
+    # if data_source == 'search':
+    #     mappings.extend(['Search Terms', 'Domains Visited'])
+    # if data_source == 'watch':
+    #     mappings.extend(['Title Terms'])
+    # imputed_data = content_analysis(imputed_data, mappings)
+
     save_to_csv(imputed_data, f'{directory}/output/imputed_{data_source}_data.csv', mappings)
     print(f"Data processing complete. Results saved to '{directory}/output/imputed_{data_source}_data.csv'.\n")
 

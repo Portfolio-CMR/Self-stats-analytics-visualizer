@@ -25,10 +25,10 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     if not out_dir.exists():
         out_dir.mkdir(parents=True, exist_ok=True)
         print(f"Directory created: {out_dir}\n")
-    save_to_csv(cleaned_data, f'{directory}/output/raw_extracted_{data_source}_history.csv', mappings)
-    print(f"Search data extraction complete. Results saved to '{directory}/output/raw_extracted_{data_source}_data.csv'.\n")
+    save_to_csv(cleaned_data, f'{directory}/output/{data_source.upper()}_raw.csv', mappings)
+    print(f"Search data extraction complete.\nResults saved to '{directory}/output/{data_source.upper()}_raw.csv'.\n")
     
-    print("Cleaning data...\n")
+    print("Cleaning data...")
     
     arr_data_trimmed = trim_date(cleaned_data, mappings)
     mappings.extend(['Weekday', 'Hour', 'Date Only'])
@@ -42,21 +42,21 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
     print("Data cleaning complete.\n")
     
-    print("Executing keyword analysis. This may take a moment...\n")
+    print("Executing keyword analysis. This may take a moment...")
 
     visited_sites, tokens_per_date = content_analysis(imputed_data, mappings)
 
     print(f"\n**************  Completed {data_source} history processing!  *********************\n")
 
-    save_to_csv(imputed_data, f'{directory}/output/imputed_{data_source}_data.csv', mappings)
-    print(f"Processed data table results saved to '{directory}/output/imputed_{data_source}_data.csv'.\n")
+    save_to_csv(imputed_data, f'{directory}/output/{data_source.upper()}_processed.csv', mappings)
+    print(f"Processed data table results saved to '{directory}/output/{data_source.upper()}_processed.csv.csv'.\n")
 
-    save_to_csv(metadata, f'{directory}/output/metadata_{data_source}_data.csv', ['Activity Window Start Index', 'Activity Window End Index', 'Activity Window Start Date/Time', 'Duration', 'Count', 'Count Per 10 minutes'])
-    print(f"Metadata saved to '{directory}/output/metadata_{data_source}_data.csv'.\n")
+    save_to_csv(metadata, f'{directory}/output/{data_source.upper()}_metadata.csv', ['Activity Window Start Index', 'Activity Window End Index', 'Activity Window Start Date/Time', 'Duration', 'Count', 'Count Per 10 minutes'])
+    print(f"Metadata saved to '{directory}/output/{data_source.upper()}_metadata.csv'.\n")
     
     if data_source == 'search':
-        save_to_csv(visited_sites, f'{directory}/output/visited_sites_{data_source}_data.csv', ['Visited Sites', 'Date'])
-        print(f"Visited sites saved to '{directory}/output/visited_sites_{data_source}_data.csv'.\n")
+        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Visited Sites', 'Date'])
+        print(f"Visited sites saved to '{directory}/output/{data_source.upper()}_visited_sites.csv'.\n")
 
-    save_to_csv(tokens_per_date, f'{directory}/output/tokens_per_date_{data_source}_data.csv', ['Tokens', 'Date'])
-    print(f'Tokens per date saved to {directory}/output/tokens_per_date_{data_source}_data.csv.\n')
+    save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Tokens', 'Date'])
+    print(f'Tokens per date saved to {directory}/output/{data_source.upper()}_keywords.csv.\n')

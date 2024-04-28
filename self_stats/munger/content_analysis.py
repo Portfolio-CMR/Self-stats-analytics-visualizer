@@ -2,10 +2,10 @@ from typing import List, Tuple, Dict, Any
 from collections import Counter
 import re
 from urllib.parse import urlparse
-
 import pandas as pd
 import spacy
 import tldextract
+import numpy as np
 
 def extract_search_queries(data: pd.DataFrame) -> List[str]:
     """
@@ -30,33 +30,6 @@ def extract_visited_sites(data: pd.DataFrame) -> List[str]:
     List[str]: A list of visited site URLs.
     """
     return [s.replace("Visited ", "", 1) for s in data['Text Title'] if s.startswith("Visited")][-100:]
-
-def extract_homepage(url: str) -> str:
-    """
-    Placeholder function for extracting the homepage from a URL.
-    
-    Args:
-    url (str): The URL from which to extract the homepage.
-    
-    Returns:
-    str: The extracted homepage.
-    """
-    # Assume there's some implementation here
-    return url  # Placeholder return
-
-# def count_elements(texts: List[str]) -> List[str]:
-#     """
-#     Process a list of texts (e.g., cleaning, tokenizing).
-    
-#     Args:
-#     texts (List[str]): The list of texts to process.
-    
-#     Returns:
-#     List[str]: The processed text tokens.
-#     """
-#     from collections import Counter
-#     # Placeholder for actual text processing logic
-#     return list(Counter(texts).elements())
 
 def process_texts(texts: List[str], nlp: Any) -> List[str]:
     """
@@ -139,46 +112,19 @@ def extract_homepage_alt_form(text):
 
     return result
 
-# if __name__ == "__main__":
-#     # Example usage
-#     table = pd.read_csv('personal_data/output/dash_ready_search_data.csv')
-#     search_queries = [s.replace("Searched for ", "", 1) for s in table['Text Title'] if s.startswith("Searched")]
-#     search_queries = search_queries[:1000]
-
-#     visited_sites = [s.replace("Visited ", "", 1) for s in table['Text Title'] if s.startswith("Visited")]
-#     visited_sites = visited_sites[-100:]
-
-#     homepages = [extract_homepage_main(site) for site in visited_sites]
-
-#     # Get cleaned tokens
-#     cleaned_tokens = process_texts(search_queries)
-
-#     # Count the frequency of each token
-#     token_frequency = Counter(cleaned_tokens)
-
-#     out = pd.DataFrame({
-#         'visited': visited_sites, 
-#         'homepage': homepages
-#     })
-
-#     token_frequency_df = pd.DataFrame(token_frequency.items(), columns=['token', 'frequency'])
-
-#     # Sort the DataFrame by 'frequency' column in descending order
-#     token_frequency_df = token_frequency_df.sort_values(by='frequency', ascending=False)
-
-#     out.to_csv('personal_data/output/visited_homepages.csv', index=False)
-#     token_frequency_df.to_csv('personal_data/output/search_token_frequency.csv', index=False)
-
-# # Load the English tokenizer, tagger, parser, NER, and word vectors
-# nlp = spacy.load("en_core_web_sm")
-
-if __name__ == "__main__":
+def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndarray, ...]:
     nlp = spacy.load("en_core_web_sm")
+
+    text_index = 0 if mappings[0] == 'Text Title' else 1
+    date_index = 1 if mappings[0] == 'Text Title' else 3
+    search = True if mappings[0] == 'Text Title' else False
+    text_array = arr_data[text_index]
+    date_array = arr_data[date_index]
 
     table = pd.read_csv('personal_data/output/dash_ready_search_data.csv')
     search_queries = extract_search_queries(table)
     visited_sites = extract_visited_sites(table)
-    homepages = [extract_homepage(site) for site in visited_sites]
+    homepages = [extract_homepage_main(site) for site in visited_sites]
     cleaned_tokens = process_texts(search_queries, nlp)
     counted_tokens = Counter(cleaned_tokens)
     token_frequency = pd.DataFrame(counted_tokens, columns=['token', 'frequency']).value_counts().reset_index(name='frequency')
@@ -186,3 +132,14 @@ if __name__ == "__main__":
     visited_data = pd.DataFrame({'visited': visited_sites, 'homepage': homepages})
     visited_data.to_csv('personal_data/output/visited_homepages.csv')
     token_frequency.to_csv('personal_data/output/search_token_frequency.csv')
+
+
+    if not search:
+        short_flags = flag_short_videos(differences)  # flags for short videos
+        imputed_arr = (*arr_data, differences, short_flags)
+        metadata = (windows[:, 1], windows[:, 0], window_durations, window_counts, counts_over_duration)
+    else:
+        imputed_arr = (*arr_data, differences)
+        metadata = (windows[:, 1], windows[:, 0], window_durations, window_counts, counts_over_duration)
+
+    return imputed_arr, metadata

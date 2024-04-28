@@ -1,6 +1,6 @@
 import numpy as np
 import regex as re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Any, Tuple, Pattern, Dict
 
 from collections import Counter
@@ -10,6 +10,8 @@ from typing import List, Optional, Tuple
 import numpy as np
 import ruptures as rpt
 from numpy import ndarray
+import tzlocal  # Import tzlocal for detecting local timezone
+from zoneinfo import ZoneInfo  
 
 def convert_to_arrays(data: List[Dict[str, Any]], mappings: List[str]) -> Tuple[np.ndarray, ...]:
     """
@@ -36,6 +38,51 @@ def convert_to_arrays(data: List[Dict[str, Any]], mappings: List[str]) -> Tuple[
 
     return arrays
 
+def get_local_naive_datetime_from_utc(utc_datetime):
+    """
+    Converts a given UTC datetime to the local timezone and then makes it naive.
+
+    Args:
+        utc_datetime (datetime.datetime): A datetime object in UTC.
+
+    Returns:
+        datetime.datetime: A naive datetime object converted to the local timezone.
+    """
+    # Get the local timezone using tzlocal
+    local_timezone = tzlocal.get_localzone()
+    # Ensure the UTC datetime is timezone-aware
+    if utc_datetime.tzinfo is None or utc_datetime.tzinfo.utcoffset(utc_datetime) is None:
+        utc_datetime = utc_datetime.replace(tzinfo=datetime.timezone.utc)
+    # Convert the datetime to the local timezone
+    local_datetime = utc_datetime.astimezone(local_timezone)
+    # Make the datetime object naive by removing timezone information
+    naive_local_datetime = local_datetime.replace(tzinfo=None, microsecond=0)
+
+    return naive_local_datetime
+
+def parse_iso_datetime(date_str):
+    """
+    Parse an ISO 8601 datetime string to a datetime object with timezone awareness.
+    
+    Args:
+        date_str (str): ISO 8601 formatted datetime string (e.g., '2024-04-20T05:55:07.811Z').
+    
+    Returns:
+        datetime: A timezone-aware datetime object.
+    """
+    # Remove the 'Z' and replace it with '+00:00' to indicate UTC offset
+    if date_str.endswith('Z'):
+        date_str = date_str[:-1] + '+00:00'
+    
+    # Parse the datetime string to a datetime object
+    date_object = datetime.fromisoformat(date_str)
+    
+    # Set the timezone to UTC if it's not already set
+    if date_object.tzinfo is None:
+        date_object = date_object.replace(tzinfo=timezone.utc)
+    
+    return date_object
+
 def parse_dates(date_array: np.ndarray) -> Tuple[np.ndarray, list]:
     """
     Parse datetime from strings in a numpy array after timezone information has been removed and adjust to desired format.
@@ -52,12 +99,10 @@ def parse_dates(date_array: np.ndarray) -> Tuple[np.ndarray, list]:
 
     for i, date_str in enumerate(date_array):
         try:
-            # Parse the date string, replacing 'Z' with '+00:00' to handle UTC format properly
-            full_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-            # Create a new datetime object without seconds and timezone information
-            new_date = datetime(year=full_date.year, month=full_date.month, day=full_date.day,
-                                hour=full_date.hour, minute=full_date.minute, second=full_date.second)
-            parsed_dates[i] = new_date  # Store the adjusted datetime object
+            full_date = parse_iso_datetime(date_str)
+            local_date = get_local_naive_datetime_from_utc(full_date)
+
+            parsed_dates[i] = local_date  # Store the adjusted datetime object
         except ValueError:
             bad_indices.append(i)  # Record the index of any unparseable date string
 
@@ -147,7 +192,6 @@ def trim_date(data: Tuple[ndarray, ndarray, ndarray, ndarray], mapping: List[str
         return tuple(arr[filtered_indices] for arr in data)
     else:
         return data
-
 
 ####### Main function for cleaning dates #######
 

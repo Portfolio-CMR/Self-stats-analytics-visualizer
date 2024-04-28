@@ -17,10 +17,34 @@ def extract_search_queries(data: np.ndarray, dates: np.ndarray) -> Tuple[np.ndar
     Returns:
         np.ndarray: An array of search queries.
     """
-    mask = np.char.startswith(data, "Searched for ")
-    filtered_data = data[mask]
-    filtered_dates = dates[mask]
-    queries = np.char.replace(filtered_data, "Searched for ", "", count=1)
+    mask_one = np.char.startswith(data, "Searched for ")
+    mask_two = np.char.startswith(data, "\"Searched for ")
+
+    combined_mask = mask_one | mask_two
+    filtered_data = data[combined_mask]
+    filtered_dates = dates[combined_mask]
+
+    first_filter = np.char.replace(filtered_data, "Searched for ", "", count=1)
+    queries = np.char.replace(first_filter, "\"Searched for ", "", count=1)
+    return (queries, filtered_dates)
+
+def extract_video_titles(data: np.ndarray, dates: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Extract video titles from a numpy array of strings.
+    
+    Args:
+        data (np.ndarray): The array containing the entries.
+    
+    Returns:
+        np.ndarray: An array of search queries.
+    """
+    mask_one = np.char.startswith(data, "Watched ")
+    mask_two = np.char.startswith(data, "\"Watched")
+    combined_mask = mask_one | mask_two
+    filtered_data = data[combined_mask]
+    filtered_dates = dates[combined_mask]
+    first_filter = np.char.replace(filtered_data, "Watched ", "", count=1)
+    queries = np.char.replace(first_filter, "\"Watched ", "", count=1)
     return (queries, filtered_dates)
 
 def process_texts(texts: np.ndarray, dates: np.ndarray, nlp: Any) -> np.ndarray:
@@ -47,7 +71,7 @@ def process_texts(texts: np.ndarray, dates: np.ndarray, nlp: Any) -> np.ndarray:
 
     remove_small_tokens = []
     for token, date in zip(tokens_list, dates):
-        if len(token) > 1:
+        if len(token) > 2:
             remove_small_tokens.append(token)
             dates_list.append(date)
 
@@ -68,7 +92,7 @@ def propagate_dates(dates: np.ndarray, texts: List[List[str]]) -> np.ndarray:
 
 ################# Visit Sites #################
 
-def extract_visited_sites(data: np.ndarray, dates: np.ndarray) -> tuple:
+def extract_visited_sites(data: np.ndarray, dates: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     Filter and process site entries from arrays of strings and corresponding dates.
     Ignores entries that start with "Visited " and do not end with "...".
@@ -83,15 +107,18 @@ def extract_visited_sites(data: np.ndarray, dates: np.ndarray) -> tuple:
     # Create a mask for entries starting with "Visited " and not ending with "..."
     start_mask = np.char.startswith(data, "Visited ")
     end_mask = ~np.char.endswith(data, "...")
-    combined_mask = start_mask & end_mask
+    start_mask_two = np.char.startswith(data, "\"Visited ")
+    end_mask_two = ~np.char.endswith(data, "...\"")
+    combined_mask = (start_mask & end_mask) | (start_mask_two & end_mask_two)
 
     # Apply the combined mask
     filtered_data = data[combined_mask]
     filtered_dates = dates[combined_mask]
 
     # Remove the "Visited " prefix
-    sites = np.char.replace(filtered_data, "Visited ", "", count=1)
-    return (sites, filtered_dates)
+    first_filter = np.char.replace(filtered_data, "Visited ", "", count=1)
+    sites = np.char.replace(first_filter, "\"Visited ", "", count=1)
+    return sites, filtered_dates
 
 def extract_homepage_from_url(url):
     """
@@ -103,9 +130,6 @@ def extract_homepage_from_url(url):
     Returns:
         str: The homepage name including the top-level domain, but without the scheme or 'www.' prefix.
     """
-    parsed_url = urlparse(url)
-    netloc = parsed_url.netloc
-
     # Using tldextract to get more accurate domain extraction
     extracted = tldextract.extract(url)
     domain = f"{extracted.domain}.{extracted.suffix}"
@@ -135,11 +159,10 @@ def extract_homepage_alt_form(text):
     """
     parts = re.split(r' \- | \| ', text)
     result = parts[-1].strip()
-    if result.endswith('...') or is_url(result) or len(parts) == 1:
-        return None
+
     return result
 
-def compile_homepage_names(text_date_array: Tuple[np.ndarray, np.ndarray]) -> np.ndarray:
+def compile_homepage_names(texts: np.ndarray, dates: np.ndarray) -> np.ndarray:
     """
     Extracts homepage names from a list of texts, using multiple methods to extract the most relevant information.
     
@@ -152,7 +175,7 @@ def compile_homepage_names(text_date_array: Tuple[np.ndarray, np.ndarray]) -> np
     """
     homepage_names = []
     paired_dates = []
-    for text, date in text_date_array:
+    for text, date in zip(texts, dates):
         if is_url(text):
             homepage_names.append(extract_homepage_from_url(text))
             paired_dates.append(date)
@@ -176,18 +199,19 @@ def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndar
 
     if search:
         visited_sites, paired_dates_with_sites = extract_visited_sites(text_array, date_array)
+        trimed_sites, paired_dates_with_sites_trimmed = compile_homepage_names(visited_sites, paired_dates_with_sites)
 
         search_queries, paired_dates_with_text = extract_search_queries(text_array, date_array)
         tokens_list, paired_dates_with_text_tokens = process_texts(search_queries, paired_dates_with_text, nlp)
 
         tokens_list_split, pair_dates_with_text_split = propagate_dates(paired_dates_with_text_tokens, tokens_list)
         
-        return (visited_sites, paired_dates_with_sites), (tokens_list_split, pair_dates_with_text_split)
+        return (trimed_sites, paired_dates_with_sites_trimmed), (tokens_list_split, pair_dates_with_text_split)
     else:
         visited_sites = None
         paired_dates_with_sites = None
 
-        search_queries, paired_dates_with_text = extract_search_queries(text_array, date_array)
+        search_queries, paired_dates_with_text = extract_video_titles(text_array, date_array)
         tokens_list, paired_dates_with_text_tokens = process_texts(search_queries, paired_dates_with_text, nlp)
 
         tokens_list_split, pair_dates_with_text_split = propagate_dates(paired_dates_with_text_tokens, tokens_list)

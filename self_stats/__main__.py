@@ -17,7 +17,6 @@ def main() -> None:
         file_flags: dict = get_file_presence_flags(directory)
 
         if file_flags['my_activity_present']:
-            print("Processing search history...\n")
             munger_main(directory, f'{directory}/MyActivity.json', [
                 'Text Title', 
                 'Date',
@@ -26,7 +25,6 @@ def main() -> None:
             ])
 
         if file_flags['watch_history_present']:
-            print("Processing watch history...\n")
             munger_main(directory, f'{directory}/watch-history.json', [
                 'Video URL',
                 'Video Title',

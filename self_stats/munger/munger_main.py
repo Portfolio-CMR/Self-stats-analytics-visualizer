@@ -13,10 +13,12 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
     if mappings[0] == 'Text Title':
         data_source = 'search'
-        print("\n\n*******************Processing search history...*********************\n\n")
     elif mappings[0] == 'Video URL':
         data_source = 'watch'
-        print("\n\n*******************Processing watch history...**********************\n\n")
+
+    print("\n\n********************************************************************\n\n")
+    print(f"\n\n*****************  Processing {data_source} history...  ********************\n\n")
+    print("\n\n********************************************************************\n\n")
 
     cleaned_data = parse_and_process(directory, input_file_name, mappings)
 
@@ -27,8 +29,9 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     save_to_csv(cleaned_data, f'{directory}/output/raw_extracted_{data_source}_history.csv', mappings)
     print(f"Search data extraction complete. Results saved to '{directory}/output/raw_extracted_{data_source}_data.csv'.\n")
     
+    print("Cleaning data...\n")
+    
     arr_data_trimmed = trim_date(cleaned_data, mappings)
-
     mappings.extend(['Weekday', 'Hour', 'Date Only'])
     arr_data_dated = add_date_columns(arr_data_trimmed, mappings)
 
@@ -37,15 +40,21 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     if data_source == 'watch':
         mappings.extend(['Video Duration', 'Short-Form Video'])
     imputed_data, metadata = imputer(arr_data_dated, mappings)
+
+    print("Data cleaning complete.\n")
     
+    print("Executing keyword analysis. This may take a moment...\n")
+
     if data_source == 'search':
         mappings.extend(['Search Terms', 'Domains Visited'])
     if data_source == 'watch':
         mappings.extend(['Title Terms'])
     visited_sites, tokens_per_date = content_analysis(imputed_data, mappings)
 
+    print(f"\n**************  Completed {data_source} history processing!  *********************\n")
+
     save_to_csv(imputed_data, f'{directory}/output/imputed_{data_source}_data.csv', mappings)
-    print(f"Data processing complete. Results saved to '{directory}/output/imputed_{data_source}_data.csv'.\n")
+    print(f"Processed data table results saved to '{directory}/output/imputed_{data_source}_data.csv'.\n")
 
     save_to_csv(metadata, f'{directory}/output/metadata_{data_source}_data.csv', ['Activity Window Start Index', 'Activity Window End Index', 'Activity Window Start Date/Time', 'Duration', 'Count', 'Count Per 10 minutes'])
     print(f"Metadata saved to '{directory}/output/metadata_{data_source}_data.csv'.\n")

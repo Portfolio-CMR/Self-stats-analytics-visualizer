@@ -19,7 +19,7 @@ def main() -> None:
         if file_flags['my_activity_present']:
             print("Processing search history...\n")
             munger_main(directory, f'{directory}/MyActivity.json', [
-                'Text Title',
+                'Text Title', 
                 'Date',
                 'Latitude',
                 'Longitude'

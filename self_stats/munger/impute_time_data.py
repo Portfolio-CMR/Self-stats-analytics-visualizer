@@ -124,33 +124,30 @@ def calculate_window_durations(timestamps: np.ndarray, windows: np.ndarray) -> t
 
 def calculate_average_durations_per_entry(durations: np.ndarray, counts: np.ndarray) -> np.ndarray:
     """
-    Calculate the average duration per entry for each activity window by dividing the total duration by the total number of entries.
+    Calculate the average counts per minute for each activity window by dividing the counts by the window duration.
+    Replace any result exceeding 20 with NaN.
     """
     valid = durations > 0  # durations must be positive
     averages = np.zeros_like(durations, dtype=float)
     averages[valid] = np.round(10 * (counts[valid] / durations[valid]), 3)
+
+    # Replace values greater than 20 with NaN
+    averages[averages > 20] = np.nan
     return averages
 
-def count_entries_in_windows(timestamps: np.ndarray, windows: np.ndarray) -> np.ndarray:
+def count_entries_in_windows(windows: np.ndarray) -> np.ndarray:
     """
     Calculate the total number of entries for each activity window using NumPy.
-    Return None if any window has more than 20 entries.
 
     Parameters:
         timestamps (np.ndarray): Array of datetime objects.
         windows (np.ndarray): Array of tuples, each containing the start and end index of an activity window.
     
     Returns:
-        np.ndarray or None: Array of the total number of entries for each window, or None if any count is above 20.
+        np.ndarray: Array of the total number of entries for each window.
     """
-    # Calculate the counts for each window
     counts = np.array([end - start + 1 for start, end in windows])
-    
-    # Check if any count is above 20
-    if np.any(counts > 20):
-        return None
-    else:
-        return counts
+    return counts
 
 def main(arr_data: tuple, mappings: list) -> tuple:
     """
@@ -165,7 +162,7 @@ def main(arr_data: tuple, mappings: list) -> tuple:
     windows = identify_activity_windows(differences)
     grouped_timestamps = group_timestamps_by_windows(timestamps, windows)
     window_durations, start_markers = calculate_window_durations(timestamps, windows)
-    window_counts = count_entries_in_windows(timestamps, windows)
+    window_counts = count_entries_in_windows(windows)
     counts_over_duration = calculate_average_durations_per_entry(window_durations, window_counts)
 
     if video:

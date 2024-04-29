@@ -55,7 +55,7 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     print(f"Metadata saved to '{directory}/output/{data_source.upper()}_metadata.csv'.\n")
     
     if data_source == 'search':
-        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Date', 'Visted Site'])
+        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Date', 'Visited Site'])
         print(f"Visited sites saved to '{directory}/output/{data_source.upper()}_visited_sites.csv'.\n")
 
     save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Date', 'Tokens'])

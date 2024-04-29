@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import tldextract
 from typing import Any, List, Tuple
 import spacy
+from datetime import datetime
 
 ################# Search Queries #################
 
@@ -75,9 +76,9 @@ def process_texts(texts: np.ndarray, dates: np.ndarray, nlp: Any) -> Tuple[List[
             meaningful_tokens_list.append(doc_tokens)
             meaningful_dates_list.append(date)
 
-    return meaningful_tokens_list, np.ndarray(meaningful_dates_list)
+    return meaningful_tokens_list, meaningful_dates_list
 
-def propagate_dates(dates: np.ndarray, texts: List[List[str]]) -> np.ndarray:
+def propagate_dates(dates: List[datetime], texts: List[List[str]]) -> np.ndarray:
     # Initialize empty lists to hold strings and their corresponding dates
     output_strings = []
     output_dates = []
@@ -159,6 +160,12 @@ def extract_homepage_alt_form(text):
     """
     parts = re.split(r' \- | \| ', text)
     result = parts[-1].strip()
+
+    if len(result) < 3:
+        return None
+    
+    if result.count(' ') > 4:
+        return None
 
     return result
 

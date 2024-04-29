@@ -53,13 +53,17 @@ def flag_short_videos(differences: np.ndarray) -> np.ndarray:
     two_minutes = np.timedelta64(2, 'm')  # Define two-minute timedelta for comparison
 
     # Create a mask for None values in the array
-    none_mask = np.array([x is None for x in differences])
+    none_mask = np.vectorize(lambda x: x is None)(differences)
+
+    # Handle valid timedelta comparisons separately
+    valid_differences = np.where(none_mask, np.timedelta64(0, 'm'), differences)  # Replace None with a neutral value
+    comparison_mask = valid_differences < two_minutes  # This comparison is now safe
 
     # Use np.where to handle None values and assign appropriate labels
     labels = np.where(
         none_mask,
         "Undetermined",
-        np.where(differences < two_minutes, "Short-form", "Long-form")
+        np.where(comparison_mask, "Short-form", "Long-form")
     )
 
     return labels
@@ -130,16 +134,23 @@ def calculate_average_durations_per_entry(durations: np.ndarray, counts: np.ndar
 def count_entries_in_windows(timestamps: np.ndarray, windows: np.ndarray) -> np.ndarray:
     """
     Calculate the total number of entries for each activity window using NumPy.
+    Return None if any window has more than 20 entries.
 
     Parameters:
         timestamps (np.ndarray): Array of datetime objects.
         windows (np.ndarray): Array of tuples, each containing the start and end index of an activity window.
     
     Returns:
-        np.ndarray: Array of the total number of entries for each window.
+        np.ndarray or None: Array of the total number of entries for each window, or None if any count is above 20.
     """
+    # Calculate the counts for each window
     counts = np.array([end - start + 1 for start, end in windows])
-    return counts
+    
+    # Check if any count is above 20
+    if np.any(counts > 20):
+        return None
+    else:
+        return counts
 
 def main(arr_data: tuple, mappings: list) -> tuple:
     """

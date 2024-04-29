@@ -122,17 +122,17 @@ def calculate_window_durations(timestamps: np.ndarray, windows: np.ndarray) -> t
 
     return np.array(durations, dtype=float), start_times
 
-def calculate_average_durations_per_entry(durations: np.ndarray, counts: np.ndarray) -> np.ndarray:
+def calculate_average_counts_per_window(durations: np.ndarray, counts: np.ndarray) -> np.ndarray:
     """
     Calculate the average counts per minute for each activity window by dividing the counts by the window duration.
-    Replace any result exceeding 20 with NaN.
+    Replace any result exceeding 10 with NaN.
     """
     valid = durations > 0  # durations must be positive
     averages = np.zeros_like(durations, dtype=float)
-    averages[valid] = np.round(10 * (counts[valid] / durations[valid]), 3)
+    averages[valid] = np.round(counts[valid] / durations[valid], 3)
 
     # Replace values greater than 20 with NaN
-    averages[averages > 20] = np.nan
+    averages[averages > 10] = np.nan
     return averages
 
 def count_entries_in_windows(windows: np.ndarray) -> np.ndarray:
@@ -163,7 +163,7 @@ def main(arr_data: tuple, mappings: list) -> tuple:
     grouped_timestamps = group_timestamps_by_windows(timestamps, windows)
     window_durations, start_markers = calculate_window_durations(timestamps, windows)
     window_counts = count_entries_in_windows(windows)
-    counts_over_duration = calculate_average_durations_per_entry(window_durations, window_counts)
+    counts_over_duration = calculate_average_counts_per_window(window_durations, window_counts)
 
     if video:
         short_flags = flag_short_videos(differences)  # flags for short videos

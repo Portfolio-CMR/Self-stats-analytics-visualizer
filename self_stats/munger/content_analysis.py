@@ -191,11 +191,9 @@ def compile_homepage_names(texts: np.ndarray, dates: np.ndarray) -> np.ndarray:
 def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndarray, ...]:
     nlp = spacy.load("en_core_web_sm")
 
-    text_index = 0 if mappings[0] == 'Text Title' else 1
-    date_index = 1 if mappings[0] == 'Text Title' else 3
-    search = True if mappings[0] == 'Text Title' else False
-    text_array = arr_data[text_index].astype(str)
-    date_array = arr_data[date_index]
+    search = True if mappings[1] == 'Text Title' else False
+    text_array = arr_data[1].astype(str)
+    date_array = arr_data[0]
 
     if search:
         visited_sites, paired_dates_with_sites = extract_visited_sites(text_array, date_array)
@@ -206,7 +204,7 @@ def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndar
 
         tokens_list_split, pair_dates_with_text_split = propagate_dates(paired_dates_with_text_tokens, tokens_list)
         
-        return (trimed_sites, paired_dates_with_sites_trimmed), (tokens_list_split, pair_dates_with_text_split)
+        return (paired_dates_with_sites_trimmed, trimed_sites), (pair_dates_with_text_split, tokens_list_split)
     else:
         visited_sites = None
         paired_dates_with_sites = None
@@ -216,4 +214,4 @@ def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndar
 
         tokens_list_split, pair_dates_with_text_split = propagate_dates(paired_dates_with_text_tokens, tokens_list)
         
-        return (visited_sites, paired_dates_with_sites), (tokens_list_split, pair_dates_with_text_split)
+        return (paired_dates_with_sites_trimmed, trimed_sites), (pair_dates_with_text_split, tokens_list_split)

@@ -206,14 +206,9 @@ def clean_dates_main(arr_data: Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndar
     Tuple of arrays after processing.
     """
 
-    if mappings[0] == 'Text Title':
-        date, bad_indices = parse_dates(arr_data[1])  # Parse dates and get indices of failures
-        arr_data = arr_data[:1] + (date,) + arr_data[2:]  # Replace the parsed date array back into the tuple
-        clean_arr = remove_indices_from_tuple(arr_data, bad_indices)
-    elif mappings[0] == 'Video URL':
-        date, bad_indices = parse_dates(arr_data[3])
-        arr_data = arr_data[:3] + (date,) + arr_data[4:]  # Replace the parsed date array back into the tuple
-        clean_arr = remove_indices_from_tuple(arr_data, bad_indices)
+    dates, bad_indices = parse_dates(arr_data[0])
+    arr_data = (dates,) + arr_data[1:]
+    clean_arr = remove_indices_from_tuple(arr_data, bad_indices)
 
 
     return clean_arr

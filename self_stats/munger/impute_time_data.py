@@ -40,22 +40,22 @@ def calculate_differences(datetimes: np.ndarray, interrupt_time: timedelta) -> n
 
 def flag_short_videos(differences: np.ndarray) -> np.ndarray:
     """
-    Flag "short" videos, i.e., those with duration less than 2 minutes, using NumPy timedelta objects.
+    Flag videos as "Short-form" if their duration is less than 2 minutes, and "Long-form" otherwise, using NumPy timedelta objects.
 
     Parameters:
         differences (np.ndarray): Array of time differences as timedelta objects, where each element can be None or a timedelta.
 
     Returns:
-        np.ndarray: Boolean array where True indicates a video duration less than 2 minutes, and False otherwise.
+        np.ndarray: Array of strings where "Short-form" indicates a video duration less than 2 minutes, and "Long-form" otherwise.
     """
-    # Convert differences to timedelta in minutes, treating None as a special case
     two_minutes = np.timedelta64(2, 'm')  # Define two-minute timedelta for comparison
     valid_differences = np.array([d if d is not None else np.timedelta64(0, 'm') for d in differences])
 
-    # Compare valid differences with two minutes
-    flags = np.vectorize(lambda x: x < two_minutes and x != np.timedelta64(0, 'm'))(valid_differences)
+    # Apply a vectorized function that checks the duration and assigns labels
+    label_function = np.vectorize(lambda x: "Short-form" if x < two_minutes and x != np.timedelta64(0, 'm') else "Long-form")
+    labels = label_function(valid_differences)
     
-    return flags
+    return labels
 
 def identify_activity_windows(differences: np.ndarray) -> np.ndarray:
     """
@@ -138,9 +138,8 @@ def main(arr_data: tuple, mappings: list) -> tuple:
     """
     Main function to process datetime data and perform analyses.
     """
-    timestamps_index = 1 if mappings[0] == 'Text Title' else 3
-    timestamps = arr_data[timestamps_index]
-    video = mappings[0] == 'Video URL'
+    timestamps = arr_data[0]
+    video = mappings[1] == 'Video Title'
 
     interrupt_time = timedelta(minutes=20)  # Maximum time difference in minutes to consider as an interruption
     differences = calculate_differences(timestamps, interrupt_time)

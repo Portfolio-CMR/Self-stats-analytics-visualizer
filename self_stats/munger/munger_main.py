@@ -10,9 +10,9 @@ from self_stats.munger.content_analysis import main as content_analysis
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
-    if mappings[0] == 'Text Title':
+    if mappings[1] == 'Text Title':
         data_source = 'search'
-    elif mappings[0] == 'Video URL':
+    elif mappings[1] == 'Video Title':
         data_source = 'watch'
 
     print("\n********************************************************************")
@@ -32,7 +32,7 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     
     arr_data_trimmed = trim_date(cleaned_data, mappings)
     mappings.extend(['Weekday', 'Hour', 'Date Only'])
-    arr_data_dated = add_date_columns(arr_data_trimmed, mappings)
+    arr_data_dated = add_date_columns(arr_data_trimmed)
 
     if data_source == 'search':
         mappings.extend(['Search Duration'])

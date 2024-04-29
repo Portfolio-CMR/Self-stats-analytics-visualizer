@@ -18,18 +18,18 @@ def main() -> None:
 
         if file_flags['my_activity_present']:
             munger_main(directory, f'{directory}/MyActivity.json', [
+                'Date',                
                 'Text Title', 
-                'Date',
                 'Latitude',
                 'Longitude'
             ])
 
         if file_flags['watch_history_present']:
             munger_main(directory, f'{directory}/watch-history.json', [
-                'Video URL',
+                'Date',                
                 'Video Title',
                 'Channel Title',
-                'Date'
+                'Video URL'
             ])
 
 if __name__ == "__main__":

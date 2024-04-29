@@ -41,7 +41,7 @@ def get_dates_only(dates: np.ndarray) -> np.ndarray:
     vectorized_date = np.vectorize(lambda date: date.date())
     return vectorized_date(dates)
 
-def main(arr_data: Tuple[np.ndarray,...], mappings: List) -> Tuple[np.ndarray,...]:
+def main(arr_data: Tuple[np.ndarray,...]) -> Tuple[np.ndarray,...]:
     """
     Processes a tuple containing at least one array of datetime objects and potentially other arrays.
     Applies transformations to extract weekdays, hours, and dates from the datetime array and combines them with other arrays in the tuple.
@@ -52,12 +52,7 @@ def main(arr_data: Tuple[np.ndarray,...], mappings: List) -> Tuple[np.ndarray,..
     Returns:
     tuple: A new tuple containing the transformed datetime arrays along with the original other elements of the input tuple.
     """
-    if mappings[0] == 'Text Title':
-        dates = arr_data[1]
-    elif mappings[0] == 'Video URL':
-        dates = arr_data[3]
-    else:
-        raise ValueError("Invalid mapping value")
+    dates = arr_data[0]
 
     # Apply the transformations
     weekdays_array = get_weekdays_np(dates)

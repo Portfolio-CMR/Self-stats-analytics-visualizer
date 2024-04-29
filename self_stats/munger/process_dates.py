@@ -98,12 +98,14 @@ def parse_dates(date_array: np.ndarray) -> Tuple[np.ndarray, list]:
     bad_indices = []  # List to store indices of unparseable dates
 
     for i, date_str in enumerate(date_array):
+        if not date_str:
+            bad_indices.append(i)
         try:
             full_date = parse_iso_datetime(date_str)
             local_date = get_local_naive_datetime_from_utc(full_date)
 
             parsed_dates[i] = local_date  # Store the adjusted datetime object
-        except ValueError:
+        except (ValueError, TypeError):
             bad_indices.append(i)  # Record the index of any unparseable date string
 
     parsed_dates_array = np.array(parsed_dates, dtype=object)  # Convert list to numpy array

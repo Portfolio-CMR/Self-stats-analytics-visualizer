@@ -41,20 +41,27 @@ def calculate_differences(datetimes: np.ndarray, interrupt_time: timedelta) -> n
 def flag_short_videos(differences: np.ndarray) -> np.ndarray:
     """
     Flag videos as "Short-form" if their duration is less than 2 minutes, and "Long-form" otherwise, using NumPy timedelta objects.
+    Entries that are None will have a label of "Undetermined".
 
     Parameters:
         differences (np.ndarray): Array of time differences as timedelta objects, where each element can be None or a timedelta.
 
     Returns:
         np.ndarray: Array of strings where "Short-form" indicates a video duration less than 2 minutes, and "Long-form" otherwise.
+        Entries corresponding to None inputs will be labeled as "Undetermined".
     """
     two_minutes = np.timedelta64(2, 'm')  # Define two-minute timedelta for comparison
-    valid_differences = np.array([d if d is not None else np.timedelta64(0, 'm') for d in differences])
 
-    # Apply a vectorized function that checks the duration and assigns labels
-    label_function = np.vectorize(lambda x: "Short-form" if x < two_minutes and x != np.timedelta64(0, 'm') else "Long-form")
-    labels = label_function(valid_differences)
-    
+    # Create a mask for None values in the array
+    none_mask = np.array([x is None for x in differences])
+
+    # Use np.where to handle None values and assign appropriate labels
+    labels = np.where(
+        none_mask,
+        "Undetermined",
+        np.where(differences < two_minutes, "Short-form", "Long-form")
+    )
+
     return labels
 
 def identify_activity_windows(differences: np.ndarray) -> np.ndarray:
@@ -153,9 +160,9 @@ def main(arr_data: tuple, mappings: list) -> tuple:
     if video:
         short_flags = flag_short_videos(differences)  # flags for short videos
         imputed_arr = (*arr_data, differences, short_flags)
-        metadata = (windows[:, 1], windows[:, 0], start_markers, window_durations, window_counts, counts_over_duration)
+        metadata = (start_markers, windows[:, 1], windows[:, 0], window_durations, window_counts, counts_over_duration)
     else:
         imputed_arr = (*arr_data, differences)
-        metadata = (windows[:, 1], windows[:, 0], start_markers, window_durations, window_counts, counts_over_duration)
+        metadata = (start_markers, windows[:, 1], windows[:, 0], window_durations, window_counts, counts_over_duration)
 
     return imputed_arr, metadata

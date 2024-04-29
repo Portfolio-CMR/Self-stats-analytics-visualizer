@@ -47,35 +47,35 @@ def extract_video_titles(data: np.ndarray, dates: np.ndarray) -> Tuple[np.ndarra
     queries = np.char.replace(first_filter, "\"Watched ", "", count=1)
     return (queries, filtered_dates)
 
-def process_texts(texts: np.ndarray, dates: np.ndarray, nlp: Any) -> np.ndarray:
+def process_texts(texts: np.ndarray, dates: np.ndarray, nlp: Any) -> Tuple[List[List[str]], np.ndarray]:
     """
     Process an array of texts using spaCy to tokenize and clean the text by removing stopwords, punctuation,
-    and any empty strings. Assumes that the spaCy model is loaded and available as 'nlp'.
+    and any tokens that are not meaningful (e.g., single characters, two-letter tokens).
+    Assumes that the spaCy model is loaded and available as 'nlp'.
     
     Args:
         texts (np.ndarray): An array of texts to process.
+        dates (np.ndarray): An array of dates corresponding to each text.
     
     Returns:
-        List[List[str]]: A list of lists of tokens for each text.
+        Tuple[List[List[str]], np.ndarray]: A tuple of a list of lists of tokens for each text and the corresponding dates.
     
     Note:
         This function requires the spaCy library and a model to be loaded with 'nlp'.
         It disables parser and named entity recognition for efficiency during tokenization.
     """
-    tokens_list = []
-    dates_list = []
-    str_texts = [str(text) for text in texts]
-    for doc in nlp.pipe(str_texts, disable=["parser", "ner"]):
-        doc_tokens = [token.text.lower() for token in doc if not token.is_stop and not token.is_punct and token.text.strip() != '']
-        tokens_list.extend([doc_tokens])
+    meaningful_tokens_list = []
+    meaningful_dates_list = []
+    str_texts = [str(text) for text in texts]  # Ensure all inputs are strings
+    for doc, date in zip(nlp.pipe(str_texts, disable=["parser", "ner"]), dates):
+        doc_tokens = [token.text.lower() for token in doc if not token.is_stop 
+                      and not token.is_punct 
+                      and len(token.text.strip()) > 2]  # Exclude single and two-letter tokens
+        if doc_tokens:  # Only append if there are tokens
+            meaningful_tokens_list.append(doc_tokens)
+            meaningful_dates_list.append(date)
 
-    remove_small_tokens = []
-    for token, date in zip(tokens_list, dates):
-        if len(token) > 2:
-            remove_small_tokens.append(token)
-            dates_list.append(date)
-
-    return remove_small_tokens, dates_list
+    return meaningful_tokens_list, np.ndarray(meaningful_dates_list)
 
 def propagate_dates(dates: np.ndarray, texts: List[List[str]]) -> np.ndarray:
     # Initialize empty lists to hold strings and their corresponding dates
@@ -214,4 +214,4 @@ def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndar
 
         tokens_list_split, pair_dates_with_text_split = propagate_dates(paired_dates_with_text_tokens, tokens_list)
         
-        return (paired_dates_with_sites_trimmed, trimed_sites), (pair_dates_with_text_split, tokens_list_split)
+        return (paired_dates_with_sites, visited_sites), (pair_dates_with_text_split, tokens_list_split)

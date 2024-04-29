@@ -51,12 +51,12 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     save_to_csv(imputed_data, f'{directory}/output/{data_source.upper()}_processed.csv', mappings)
     print(f"Processed data table results saved to '{directory}/output/{data_source.upper()}_processed.csv.csv'.\n")
 
-    save_to_csv(metadata, f'{directory}/output/{data_source.upper()}_metadata.csv', ['Activity Window Start Index', 'Activity Window End Index', 'Activity Window Start Date/Time', 'Duration', 'Count', 'Count Per 10 minutes'])
+    save_to_csv(metadata, f'{directory}/output/{data_source.upper()}_metadata.csv', ['Activity Window Start Date/Time', 'Activity Window Start Index', 'Activity Window End Index', 'Duration', 'Count', 'Count Per 10 minutes'])
     print(f"Metadata saved to '{directory}/output/{data_source.upper()}_metadata.csv'.\n")
     
     if data_source == 'search':
-        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Visited Sites', 'Date'])
+        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Date', 'Visted Site'])
         print(f"Visited sites saved to '{directory}/output/{data_source.upper()}_visited_sites.csv'.\n")
 
-    save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Tokens', 'Date'])
+    save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Date', 'Tokens'])
     print(f'Tokens per date saved to {directory}/output/{data_source.upper()}_keywords.csv.\n')

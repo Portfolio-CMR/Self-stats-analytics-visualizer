@@ -2,9 +2,34 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, urlparse
+import regex
 
 from self_stats.munger.process_dates import convert_to_arrays, clean_dates_main
 from self_stats.munger.input_output import read_json_file
+
+def clean_string(input_string: str) -> str:
+    """
+    Cleans a string by removing non-printable characters and other potential unwanted characters or patterns.
+    
+    Args:
+    - input_string (str): The string to be cleaned.
+    
+    Returns:
+    - str: The cleaned string.
+    """
+    if input_string is None:
+        return None
+
+    # Remove all non-printable characters (Unicode category C)
+    cleaned_string = regex.sub(r'[\p{C}]', '', input_string)
+    
+    # Remove leading and trailing whitespace
+    cleaned_string = cleaned_string.strip()
+    
+    # Optionally replace multiple spaces with a single space
+    cleaned_string = regex.sub(r'\s+', ' ', cleaned_string)
+    
+    return cleaned_string
 
 def extract_coordinates(location_url: str) -> Tuple[Optional[float], Optional[float]]:
     """
@@ -43,12 +68,12 @@ def extract_search_information(json_data: List[Dict[str, Any]]) -> List[Dict[str
     extracted_data = []
 
     for entry in json_data:
-        title = entry.get('title', '')
-        time = entry.get('time', None)
+        title = clean_string(entry.get('title', None))
+        time = clean_string(entry.get('time', None))
 
         location_infos = entry.get('locationInfos', [])
         if location_infos:
-            location_url = location_infos[0].get('url', None)
+            location_url = clean_string(location_infos[0].get('url', None))
             lat, long = extract_coordinates(location_url) if location_url else (None, None)
         else:
             lat, long = None, None
@@ -76,12 +101,12 @@ def extract_watch_information(json_data: List[Dict[str, Any]]) -> List[Dict[str,
     extracted_data = []
 
     for entry in json_data:
-        title = entry.get('title', '')
-        time = entry.get('time', None)
-        titleUrl = entry.get('titleUrl', None)
+        title = clean_string(entry.get('title', None))
+        time = clean_string(entry.get('time', None))
+        titleUrl = clean_string(entry.get('titleUrl', None))
         channel_info = entry.get('subtitles', [])
         if channel_info:
-            channel_name = channel_info[0].get('name', None)
+            channel_name = clean_string(channel_info[0].get('name', None))
 
         extracted_data.append({
             'Date': time,

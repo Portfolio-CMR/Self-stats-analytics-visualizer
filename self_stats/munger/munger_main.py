@@ -10,12 +10,13 @@ from self_stats.munger.parse_and_process import main as parse_and_process
 from self_stats.munger.add_date_columns import main as add_date_columns
 from self_stats.munger.impute_time_data import main as imputer
 from self_stats.munger.content_analysis import main as content_analysis
+from self_stats.munger.aggregate_data import aggregate_by_day
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
-    if mappings[1] == 'Query Text':
+    if mappings[1] == 'Query_Text':
         data_source = 'search'
-    elif mappings[1] == 'Video Title':
+    elif mappings[1] == 'Video_Title':
         data_source = 'watch'
 
     print("\n********************************************************************")
@@ -42,13 +43,13 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     print("Cleaning data...")
     
     arr_data_trimmed = trim_date(extracted_data, mappings)
-    mappings.extend(['Day of the Week', 'Hour of the Day', 'Date Only'])
+    mappings.extend(['Day_of_the_Week', 'Hour_of_the_Day', 'Date_Only'])
     arr_data_dated = add_date_columns(arr_data_trimmed)
 
     if data_source == 'search':
-        mappings.extend(['Search Duration'])
+        mappings.extend(['Search_Duration'])
     if data_source == 'watch':
-        mappings.extend(['Video Duration', 'Short-Form Video'])
+        mappings.extend(['Video_Duration', 'Short_Form_Video'])
     imputed_data, metadata = imputer(arr_data_dated, mappings)
 
     print("Data cleaning complete.\n")
@@ -62,12 +63,15 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     save_to_csv(imputed_data, f'{directory}/output/{data_source.upper()}_processed.csv', mappings)
     print(f"Processed data table results saved to '{directory}/output/{data_source.upper()}_processed.csv.csv'.\n")
 
-    save_to_csv(metadata, f'{directory}/output/{data_source.upper()}_metadata.csv', ['Activity Window Start Date/Time', 'Activity Window Start Index', 'Activity Window End Index', 'Duration', 'Count', 'Count Per 10 minutes'])
+    save_to_csv(metadata, f'{directory}/output/{data_source.upper()}_metadata.csv', ['Activity_Window_Start_Date', 'Activity_Window_Start_Index', 'Activity_Window_End_Index', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'])
     print(f"Metadata saved to '{directory}/output/{data_source.upper()}_metadata.csv'.\n")
     
     if data_source == 'search':
-        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Date', 'Visited Site'])
+        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Date', 'Visited_Sites'])
         print(f"Visited sites saved to '{directory}/output/{data_source.upper()}_visited_sites.csv'.\n")
 
-    save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Date', 'Tokens'])
+    save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Date', 'Keywords'])
     print(f'Tokens per date saved to {directory}/output/{data_source.upper()}_keywords.csv.\n')
+
+    aggregated_data = aggregate_by_day(imputed_data, mappings)
+    save_to_csv(aggregated_data, f'{directory}/output/{data_source.upper()}_aggregated.csv', ['Date', *mappings[1:]])

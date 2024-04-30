@@ -80,7 +80,7 @@ def extract_search_information(json_data: List[Dict[str, Any]]) -> List[Dict[str
 
         extracted_data.append({
             'Date': time,
-            'Query Text': title,
+            'Query_Text': title,
             'Latitude': lat,
             'Longitude': long
         })
@@ -110,9 +110,9 @@ def extract_watch_information(json_data: List[Dict[str, Any]]) -> List[Dict[str,
 
         extracted_data.append({
             'Date': time,
-            'Video Title': title,
-            'Channel Title': channel_name,
-            'Video URL': titleUrl
+            'Video_Title': title,
+            'Channel_Title': channel_name,
+            'Video_URL': titleUrl
         })
 
     return extracted_data

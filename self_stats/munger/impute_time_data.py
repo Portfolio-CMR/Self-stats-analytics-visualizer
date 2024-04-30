@@ -154,7 +154,7 @@ def main(arr_data: tuple, mappings: list) -> tuple:
     Main function to process datetime data and perform analyses.
     """
     timestamps = arr_data[0]
-    video = mappings[1] == 'Video Title'
+    video = mappings[1] == 'Video_Title'
 
     interrupt_time = timedelta(minutes=20)  # Maximum time difference in minutes to consider as an interruption
     differences = calculate_differences(timestamps, interrupt_time)

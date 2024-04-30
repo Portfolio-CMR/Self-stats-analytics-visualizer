@@ -1,5 +1,8 @@
 from pathlib import Path
 from typing import List
+import pandas as pd
+from datetime import datetime
+import numpy as np
 
 from self_stats.munger.input_output import save_to_csv
 from self_stats.munger.process_dates import trim_date
@@ -10,7 +13,7 @@ from self_stats.munger.content_analysis import main as content_analysis
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
-    if mappings[1] == 'Text Title':
+    if mappings[1] == 'Query Text':
         data_source = 'search'
     elif mappings[1] == 'Video Title':
         data_source = 'watch'
@@ -19,19 +22,27 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     print(f"*****************  Processing {data_source} history...  ********************")
     print("********************************************************************\n")
 
-    cleaned_data = parse_and_process(directory, input_file_name, mappings)
+    extracted_data = parse_and_process(directory, input_file_name, mappings)
 
     out_dir = Path(f'{directory}/output')
     if not out_dir.exists():
         out_dir.mkdir(parents=True, exist_ok=True)
         print(f"Directory created: {out_dir}\n")
-    save_to_csv(cleaned_data, f'{directory}/output/{data_source.upper()}_raw.csv', mappings)
+    save_to_csv(extracted_data, f'{directory}/output/{data_source.upper()}_raw.csv', mappings)
     print(f"Search data extraction complete.\nResults saved to '{directory}/output/{data_source.upper()}_raw.csv'.\n")
     
+    # Optional injection of fake data for testing purposes
+    fake_data = pd.read_csv(f'{directory}/output_orig/{data_source.upper()}_fake.csv')
+    fake_data['Date'] = pd.to_datetime(fake_data['Date']).apply(lambda x: x.to_pydatetime())
+    date_objects = [date.to_pydatetime() for date in fake_data['Date']]
+    date_array = np.array(date_objects, dtype=object)
+    non_date_data = [fake_data[column].to_numpy() for column in mappings[1:]]
+    extracted_data = (date_array, *non_date_data)
+
     print("Cleaning data...")
     
-    arr_data_trimmed = trim_date(cleaned_data, mappings)
-    mappings.extend(['Weekday', 'Hour', 'Date Only'])
+    arr_data_trimmed = trim_date(extracted_data, mappings)
+    mappings.extend(['Day of the Week', 'Hour of the Day', 'Date Only'])
     arr_data_dated = add_date_columns(arr_data_trimmed)
 
     if data_source == 'search':

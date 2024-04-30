@@ -10,7 +10,7 @@ from self_stats.munger.parse_and_process import main as parse_and_process
 from self_stats.munger.add_date_columns import main as add_date_columns
 from self_stats.munger.impute_time_data import main as imputer
 from self_stats.munger.content_analysis import main as content_analysis
-from self_stats.munger.aggregate_data import aggregate_by_day
+from self_stats.munger.aggregate_data import main as aggregate_by_day
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
@@ -75,3 +75,4 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
     aggregated_data = aggregate_by_day(imputed_data, mappings)
     save_to_csv(aggregated_data, f'{directory}/output/{data_source.upper()}_aggregated.csv', ['Date', *mappings[1:]])
+    print(f'Aggregated data saved to {directory}/output/{data_source.upper()}_aggregated.csv.\n')

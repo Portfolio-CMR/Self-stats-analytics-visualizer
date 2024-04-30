@@ -4,13 +4,15 @@ import pandas as pd
 from datetime import datetime
 import numpy as np
 
-from self_stats.munger.input_output import save_to_csv
+from self_stats.munger.input_output import save_to_csv, write_arrays_to_excel
 from self_stats.munger.process_dates import trim_date
 from self_stats.munger.parse_and_process import main as parse_and_process
 from self_stats.munger.add_date_columns import main as add_date_columns
 from self_stats.munger.impute_time_data import main as imputer
 from self_stats.munger.content_analysis import main as content_analysis
 from self_stats.munger.aggregate_data import main as aggregate_by_day
+from self_stats.munger.aggregate_data import remove_unique_entries
+from self_stats.munger.aggregate_data import aggregate_activity_by_day
 
 def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
@@ -73,12 +75,44 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Date', 'Keywords'])
     print(f'Tokens per date saved to {directory}/output/{data_source.upper()}_keywords.csv.\n')
 
-    aggregated_data = aggregate_by_day(imputed_data, mappings)
-    
-    if data_source == 'watch':
-        mappings = ['Day_of_the_Week', 'Most_Active_Hour_of_the_Day', 'Short_Form_Ratio']
-    else:
-        mappings = ['Day_of_the_Week', 'Most_Active_Hour_of_the_Day']
 
-    save_to_csv(aggregated_data, f'{directory}/output/{data_source.upper()}_aggregated.csv', ['Date', 'Record_Counts', *mappings])
-    print(f'Aggregated data saved to {directory}/output/{data_source.upper()}_aggregated.csv.\n')
+
+    print(f'Aggregating {data_source} data by day...\n')
+
+    aggregate_keywords = remove_unique_entries(tokens_per_date)
+
+    if data_source == 'search':
+        aggregated_sites = remove_unique_entries(visited_sites)
+
+    mappings = ['Activity_Window_Start_Date', 'Activity_Window_Start_Index', 'Activity_Window_End_Index', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute']
+    aggregate_activity = aggregate_activity_by_day(metadata, mappings)
+    mappings = ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day']
+
+    aggregated_data = aggregate_by_day(imputed_data, mappings)
+    mappings = ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day']
+    if data_source == 'watch':
+        mappings.extend(['Short_Form_Ratio'])
+
+    array_lists = [aggregated_data, aggregate_activity, aggregate_keywords]
+    if data_source == 'search':
+        array_lists.append(aggregated_sites)
+        sheet_names = ['Aggregated_Data', 'Aggregated_Activity', 'Aggregated_Keywords', 'Aggregated_Sites']
+        column_name_lists = [
+            ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day'],
+            ['Activity_Window_Start_Date', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'],
+            ['Date', 'Keywords'], 
+            ['Date', 'Visited_Sites']]
+        
+    if data_source == 'watch':
+        date_channel_array = (imputed_data[0], imputed_data[2])
+        aggregated_channels = remove_unique_entries(date_channel_array)
+        array_lists.append(aggregated_channels)
+        sheet_names = ['Aggregated_Data', 'Aggregated_Activity', 'Aggregated_Keywords', 'Aggregated_Channels']
+        column_name_lists = [
+            ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day'],
+            ['Activity_Window_Start_Date', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'],
+            ['Date', 'Keywords'], 
+            ['Date', 'Channel_Title']]
+
+    write_arrays_to_excel(array_lists, column_name_lists, sheet_names, f'{directory}/output/{data_source.upper()}_Aggregation.xlsx')
+    print(f'Aggregated data saved to {directory}/output/{data_source.upper()}_Aggregation.xlsx.\n')

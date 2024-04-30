@@ -82,7 +82,67 @@ def prepare_output(date_series: pd.Series, counts: np.ndarray, weekday: pd.Serie
     date_strings = date_series.index.strftime('%Y-%m-%d').astype(str)
     return (date_strings, counts, weekday)
 
-# Define all the previously created functions here or ensure they are imported if defined elsewhere
+def remove_unique_entries(data_tuple):
+    """
+    Removes entries from both arrays in the tuple where the entry in the second array is unique.
+    
+    Parameters:
+    - data_tuple (tuple): A tuple of two arrays. First array holds datetime information,
+                          and the second array holds keywords.
+    
+    Returns:
+    - tuple: A tuple of two arrays with unique entries removed.
+    """
+    # Unpack the tuple into two arrays
+    datetime_array, keyword_array = data_tuple
+
+    datetime_array = np.array(datetime_array)
+    keyword_array = np.array(keyword_array)
+    
+    # Find all unique values and their counts in the keyword array
+    unique_keywords, counts = np.unique(keyword_array, return_counts=True)
+    
+    # Filter out keywords that occur exactly once (unique)
+    non_unique_keywords = unique_keywords[counts > 1]
+    
+    # Create a mask that is True for indices where the keyword is not unique
+    mask = np.isin(keyword_array, non_unique_keywords)
+    
+    # Filter both arrays using the mask
+    filtered_datetime_array = datetime_array[mask]
+    filtered_keyword_array = keyword_array[mask]
+    
+    return (filtered_datetime_array, filtered_keyword_array)
+
+def aggregate_activity_by_day(data: Tuple[np.ndarray, ...], column_names: List[str]) -> Tuple[np.ndarray, ...]:
+    """
+    Calculates the average values for each numerical column per day from a tuple of arrays.
+
+    Parameters:
+    - data (Tuple[np.ndarray, ...]): Tuple of arrays where each array represents a column. 
+      The first column is assumed to be datetime.
+    - column_names (List[str]): Names of the columns corresponding to the arrays in the data tuple.
+
+    Returns:
+    - Tuple[np.ndarray, ...]: A tuple of arrays, each containing the daily averages of the respective columns.
+    """
+    # Create a DataFrame from the tuple of arrays
+    df = pd.DataFrame(data={name: array for name, array in zip(column_names, data)})
+
+    # Ensure the datetime column is treated as datetime type
+    df[column_names[0]] = pd.to_datetime(df[column_names[0]])
+
+    # Extract date part from the datetime
+    df['Date'] = df[column_names[0]].dt.date
+    df = df.drop([column_names[0], column_names[1], column_names[2]], axis=1)
+
+
+    # Group by the date and calculate mean for each column except the datetime
+    grouped = df.groupby('Date').mean()
+
+    # Return the results as a tuple of arrays, one for each column (including the date)
+    return (grouped.index.values,) + tuple(grouped[col].values for col in grouped.columns)
+
 
 def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndarray, ...]:
 
@@ -103,7 +163,6 @@ def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndar
         # Prepare the final output
         date_strings = counts_per_day.index.strftime('%Y-%m-%d').astype(str)
         output = (date_strings, counts_per_day.values, weekday.values, max_hour.values, ratios_per_day.values)
- 
         return output
     else:
         df = pd.DataFrame({'Datetime': pd.to_datetime(datetime_array)})

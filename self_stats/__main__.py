@@ -5,7 +5,7 @@ def main() -> None:
     """
     Main function that orchestrates the processing of watch history and search history based on file presence.
     """
-    skip_preprocess = False # This line will be used if the user just wants data viz functionality
+    skip_preprocess = False # This line will be used if the user  just wants data viz functionality
     directory = 'personal_data' # This line skips user input for quicker testing
 
     # if the user has already processed the data, they can skip the preprocessing step

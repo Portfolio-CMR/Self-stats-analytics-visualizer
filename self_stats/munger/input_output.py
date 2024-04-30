@@ -66,3 +66,28 @@ def get_file_presence_flags(directory: str) -> Dict[str, bool]:
         'watch_history_present': (path / 'watch-history.json').exists(),
         'my_activity_present': (path / 'MyActivity.json').exists()
     }
+
+import pandas as pd
+
+def write_arrays_to_excel(array_lists, column_name_lists, sheet_names, filename):
+    """
+    Writes multiple lists of arrays to an Excel file, each on a different sheet with specified column names.
+    
+    Parameters:
+    - array_lists (list of list of np.array): Each list contains arrays that should be written to a sheet.
+    - column_name_lists (list of list of str): Names for the columns corresponding to each array in array_lists.
+    - sheet_names (list of str): Names for each sheet.
+    - filename (str): The filename for the output Excel file.
+    """
+    # Create a Pandas Excel writer using XlsxWriter as the engine
+    with pd.ExcelWriter(filename, engine='xlsxwriter') as writer:
+        # Iterate over each list of arrays, column names list, and sheet name
+        for arrays, col_names, sheet_name in zip(array_lists, column_name_lists, sheet_names):
+            # Create a DataFrame for each list of arrays with the corresponding column names
+            df = pd.DataFrame({col_name: arr for arr, col_name in zip(arrays, col_names)})
+            # Write the DataFrame to a named sheet in the Excel file
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+
+
+

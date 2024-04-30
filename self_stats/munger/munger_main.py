@@ -74,5 +74,11 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     print(f'Tokens per date saved to {directory}/output/{data_source.upper()}_keywords.csv.\n')
 
     aggregated_data = aggregate_by_day(imputed_data, mappings)
-    save_to_csv(aggregated_data, f'{directory}/output/{data_source.upper()}_aggregated.csv', ['Date', *mappings[1:]])
+    
+    if data_source == 'watch':
+        mappings = ['Day_of_the_Week', 'Most_Active_Hour_of_the_Day', 'Short_Form_Ratio']
+    else:
+        mappings = ['Day_of_the_Week', 'Most_Active_Hour_of_the_Day']
+
+    save_to_csv(aggregated_data, f'{directory}/output/{data_source.upper()}_aggregated.csv', ['Date', 'Record_Counts', *mappings])
     print(f'Aggregated data saved to {directory}/output/{data_source.upper()}_aggregated.csv.\n')

@@ -40,14 +40,14 @@ def calculate_differences(datetimes: np.ndarray, interrupt_time: timedelta) -> n
 
 def flag_short_videos(differences: np.ndarray) -> np.ndarray:
     """
-    Flag videos as "Short-form" if their duration is less than 2 minutes, and "Long-form" otherwise, using NumPy timedelta objects.
+    Flag videos as "Short-Form" if their duration is less than 2 minutes, and "Long-Form" otherwise, using NumPy timedelta objects.
     Entries that are None will have a label of "Undetermined".
 
     Parameters:
         differences (np.ndarray): Array of time differences as timedelta objects, where each element can be None or a timedelta.
 
     Returns:
-        np.ndarray: Array of strings where "Short-form" indicates a video duration less than 2 minutes, and "Long-form" otherwise.
+        np.ndarray: Array of strings where "Short-Form" indicates a video duration less than 2 minutes, and "Long-Form" otherwise.
         Entries corresponding to None inputs will be labeled as "Undetermined".
     """
     two_minutes = np.timedelta64(2, 'm')  # Define two-minute timedelta for comparison
@@ -63,7 +63,7 @@ def flag_short_videos(differences: np.ndarray) -> np.ndarray:
     labels = np.where(
         none_mask,
         "Undetermined",
-        np.where(comparison_mask, "Short-form", "Long-form")
+        np.where(comparison_mask, "Short-Form", "Long-Form")
     )
 
     return labels

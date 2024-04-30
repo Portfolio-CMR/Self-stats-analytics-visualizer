@@ -80,7 +80,7 @@ def extract_search_information(json_data: List[Dict[str, Any]]) -> List[Dict[str
 
         extracted_data.append({
             'Date': time,
-            'Text Title': title,
+            'Query Text': title,
             'Latitude': lat,
             'Longitude': long
         })

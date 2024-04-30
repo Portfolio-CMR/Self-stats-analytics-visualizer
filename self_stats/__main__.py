@@ -19,7 +19,7 @@ def main() -> None:
         if file_flags['my_activity_present']:
             munger_main(directory, f'{directory}/MyActivity.json', [
                 'Date',
-                'Text Title', 
+                'Query Text', 
                 'Latitude',
                 'Longitude'
             ])

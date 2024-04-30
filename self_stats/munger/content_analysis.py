@@ -198,7 +198,7 @@ def compile_homepage_names(texts: np.ndarray, dates: np.ndarray) -> np.ndarray:
 def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndarray, ...]:
     nlp = spacy.load("en_core_web_sm")
 
-    search = True if mappings[1] == 'Text Title' else False
+    search = True if mappings[1] == 'Query Text' else False
     text_array = arr_data[1].astype(str)
     date_array = arr_data[0]
 

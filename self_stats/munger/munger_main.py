@@ -50,12 +50,12 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     ############################################################
     # Optional injection of fake data for testing purposes
     ############################################################
-    # fake_data = pd.read_csv(f'{directory}/output_orig/{data_source.upper()}_fake.csv')
-    # fake_data['Date'] = pd.to_datetime(fake_data['Date']).apply(lambda x: x.to_pydatetime())
-    # date_objects = [date.to_pydatetime() for date in fake_data['Date']]
-    # date_array = np.array(date_objects, dtype=object)
-    # non_date_data = [fake_data[column].to_numpy() for column in mappings[1:]]
-    # extracted_data = (date_array, *non_date_data)
+    fake_data = pd.read_csv(f'{directory}/output/full_data/{data_source.upper()}_fake.csv')
+    fake_data['Date'] = pd.to_datetime(fake_data['Date']).apply(lambda x: x.to_pydatetime())
+    date_objects = [date.to_pydatetime() for date in fake_data['Date']]
+    date_array = np.array(date_objects, dtype=object)
+    non_date_data = [fake_data[column].to_numpy() for column in mappings[1:]]
+    extracted_data = (date_array, *non_date_data)
     ############################################################
 
     print("Cleaning data...")
@@ -79,7 +79,7 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     print("Keyword analysis complete.\n")
 
     save_to_csv(imputed_data, processed_save_path, mappings)
-    print(f"Processed data table results saved to {processed_save_path}.\n")
+    print(f"Processed data table results saved to {processed_save_path}.")
 
     save_to_csv(metadata, metadata_save_path, ['Activity_Window_Start_Date', 'Activity_Window_Start_Index', 'Activity_Window_End_Index', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'])
     print(f"Metadata saved to {metadata_save_path}.")
@@ -103,6 +103,8 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     mappings = ['Activity_Window_Start_Date', 'Activity_Window_Start_Index', 'Activity_Window_End_Index', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute']
     aggregate_activity = aggregate_activity_by_day(metadata, mappings)
     mappings = ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day']
+    if data_source == 'watch':
+        mappings.extend(['Short_Form_Ratio'])
 
     aggregated_data = aggregate_by_day(imputed_data, mappings)
     mappings = ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day']
@@ -125,7 +127,7 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
         array_lists.append(aggregated_channels)
         sheet_names = ['Time_Series', 'Activity_Windows', 'Keywords', 'Channels']
         column_name_lists = [
-            ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day'],
+            ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day', 'Short_Form_Ratio'],
             ['Activity_Window_Start_Date', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'],
             ['Date', 'Keywords'], 
             ['Date', 'Channel_Title']]

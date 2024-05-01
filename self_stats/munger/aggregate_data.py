@@ -148,9 +148,9 @@ def main(arr_data: Tuple[np.ndarray, ...], mappings: List[str]) -> Tuple[np.ndar
 
     datetime_array = arr_data[0]
     try:
-        video_type_index = mappings.index('Short_Form_Video')
-        video_type = arr_data[video_type_index]
-    except ValueError:
+        # video_type_index = mappings.index('Short_Form_Ratio')
+        video_type = arr_data[8]
+    except IndexError:
         video_type = None
 
     if video_type is not None:

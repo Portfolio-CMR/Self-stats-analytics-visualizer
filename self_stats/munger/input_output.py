@@ -4,8 +4,36 @@ import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from pathlib import Path
+from typing import List
+import pandas as pd
 
-def read_json_file(file_path: str) -> List[Dict[str, Any]]:
+def create_output_directories(directories: List[Path]) -> None:
+    """
+    Creates each specified directory in the provided list and prints a list of all created directories at the end.
+
+    Args:
+    directories (List[str]): A list of paths of directories to be created.
+
+    Returns:
+    None: This function does not return any value, but prints a single message listing all directories that were created.
+    """
+    created_directories = []  # List to store paths of directories created
+    for directory in directories:
+        out_dir = Path(f'{directory}')
+        if not out_dir.exists():
+            out_dir.mkdir(parents=True, exist_ok=True)
+            created_directories.append(out_dir)
+
+    # Print all created directories in one go
+    if created_directories:
+        print("Directories created:\n")
+        for dir in created_directories:
+            print(dir)
+        print("\n")  # Add a newline for better formatting at the end
+
+
+def read_json_file(file_path: Path) -> List[Dict[str, Any]]:
     """
     Loads JSON data from a specified file.
 
@@ -38,7 +66,7 @@ def save_to_csv(data: Tuple[np.ndarray, ...], filepath: str | Path, mappings: Li
         # Write the rows to the CSV file
         writer.writerows(combined_data)
 
-def ensure_directory_exists(directory: str) -> None:
+def ensure_directory_exists(directory: Path) -> None:
     """Ensure that the specified directory exists.
     
     Args:
@@ -51,7 +79,7 @@ def ensure_directory_exists(directory: str) -> None:
     if not path.is_dir():
         raise ValueError(f"Directory {directory} does not exist. Please ensure it is created and accessible.")
 
-def get_file_presence_flags(directory: str) -> Dict[str, bool]:
+def get_file_presence_flags(directory: Path) -> Dict[str, bool]:
     """Check for the presence of specific files in a given directory and return their presence as flags.
     
     Args:
@@ -67,9 +95,12 @@ def get_file_presence_flags(directory: str) -> Dict[str, bool]:
         'my_activity_present': (path / 'MyActivity.json').exists()
     }
 
-import pandas as pd
-
-def write_arrays_to_excel(array_lists, column_name_lists, sheet_names, filename):
+def write_arrays_to_excel(
+    array_lists: List[List[np.ndarray]], 
+    column_name_lists: List[List[str]], 
+    sheet_names: List[str], 
+    filename: Path
+) -> None:
     """
     Writes multiple lists of arrays to an Excel file, each on a different sheet with specified column names.
     

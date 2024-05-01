@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from self_stats.munger.input_output import get_file_presence_flags
 from self_stats.munger.munger_main import main as munger_main
 
@@ -12,12 +14,15 @@ def main() -> None:
     # this option will be make available through the command line arguments at a later point
     if not skip_preprocess:
         # directory: str = input("Enter the directory path where your input data is held: ")
-        print(f"\nInitializing from directory: {directory}...\n")
+        print(f"\nInitializing from directory: /{directory}\n")
 
-        file_flags: dict = get_file_presence_flags(directory)
+        # Using pathlib to construct the path
+        dir_path = Path(directory)
+
+        file_flags: dict = get_file_presence_flags(dir_path)
 
         if file_flags['my_activity_present']:
-            munger_main(directory, f'{directory}/MyActivity.json', [
+            munger_main(dir_path, dir_path / 'MyActivity.json', [
                 'Date',
                 'Query_Text', 
                 'Latitude',
@@ -25,7 +30,7 @@ def main() -> None:
             ])
 
         if file_flags['watch_history_present']:
-            munger_main(directory, f'{directory}/watch-history.json', [
+            munger_main(dir_path, dir_path / 'watch-history.json', [
                 'Date',
                 'Video_Title',
                 'Channel_Title',

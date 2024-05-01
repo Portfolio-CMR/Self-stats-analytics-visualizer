@@ -117,12 +117,12 @@ def extract_watch_information(json_data: List[Dict[str, Any]]) -> List[Dict[str,
 
     return extracted_data
 
-def main(directory: str, data_source: str | Path, mappings: List[str]) -> None:
+def main(directory: Path, data_source: str | Path, mappings: List[str]) -> None:
 
     json_data = read_json_file(data_source)
-    if data_source == f'{directory}/MyActivity.json':
+    if data_source == directory / 'MyActivity.json':
         extracted_data = extract_search_information(json_data)
-    if data_source == f'{directory}/watch-history.json':
+    if data_source == directory / 'watch-history.json':
         extracted_data = extract_watch_information(json_data)
 
     arr_data = convert_to_arrays(extracted_data, mappings)

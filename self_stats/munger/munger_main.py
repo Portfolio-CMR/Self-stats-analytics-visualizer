@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 import numpy as np
 
-from self_stats.munger.input_output import save_to_csv, write_arrays_to_excel
+from self_stats.munger.input_output import create_output_directories, save_to_csv, write_arrays_to_excel
 from self_stats.munger.process_dates import trim_date
 from self_stats.munger.parse_and_process import main as parse_and_process
 from self_stats.munger.add_date_columns import main as add_date_columns
@@ -14,7 +14,7 @@ from self_stats.munger.aggregate_data import main as aggregate_by_day
 from self_stats.munger.aggregate_data import remove_unique_entries
 from self_stats.munger.aggregate_data import aggregate_activity_by_day
 
-def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
+def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
 
     if mappings[1] == 'Query_Text':
         data_source = 'search'
@@ -25,22 +25,38 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     print(f"*****************  Processing {data_source} history...  ********************")
     print("********************************************************************\n")
 
+    # Define paths for saving output files
+    outer_path = directory / 'output'
+    path = outer_path / 'full_data'
+    agg_dir = outer_path / 'aggregated_data'
+    raw_save_path = path / f'{data_source.upper()}_raw.csv'
+    processed_save_path = path / f'{data_source.upper()}_processed.csv'
+    metadata_save_path = path / f'{data_source.upper()}_metadata.csv'
+    visited_sites_save_path = path / f'{data_source.upper()}_visited_sites.csv'
+    keywords_save_path = path / f'{data_source.upper()}_keywords.csv'
+    agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_Agg.xlsx'
+    
+
+    directory_list = [outer_path, path, agg_dir]
+    create_output_directories(directory_list)
+
+    print("Extracting data from input file...\n")
+
     extracted_data = parse_and_process(directory, input_file_name, mappings)
 
-    out_dir = Path(f'{directory}/output')
-    if not out_dir.exists():
-        out_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Directory created: {out_dir}\n")
-    save_to_csv(extracted_data, f'{directory}/output/{data_source.upper()}_raw.csv', mappings)
-    print(f"Search data extraction complete.\nResults saved to '{directory}/output/{data_source.upper()}_raw.csv'.\n")
+    save_to_csv(extracted_data, raw_save_path, mappings)
+    print(f"Search data extraction complete.\nResults saved to {raw_save_path}'.\n")
     
+    ############################################################
     # Optional injection of fake data for testing purposes
-    fake_data = pd.read_csv(f'{directory}/output_orig/{data_source.upper()}_fake.csv')
-    fake_data['Date'] = pd.to_datetime(fake_data['Date']).apply(lambda x: x.to_pydatetime())
-    date_objects = [date.to_pydatetime() for date in fake_data['Date']]
-    date_array = np.array(date_objects, dtype=object)
-    non_date_data = [fake_data[column].to_numpy() for column in mappings[1:]]
-    extracted_data = (date_array, *non_date_data)
+    ############################################################
+    # fake_data = pd.read_csv(f'{directory}/output_orig/{data_source.upper()}_fake.csv')
+    # fake_data['Date'] = pd.to_datetime(fake_data['Date']).apply(lambda x: x.to_pydatetime())
+    # date_objects = [date.to_pydatetime() for date in fake_data['Date']]
+    # date_array = np.array(date_objects, dtype=object)
+    # non_date_data = [fake_data[column].to_numpy() for column in mappings[1:]]
+    # extracted_data = (date_array, *non_date_data)
+    ############################################################
 
     print("Cleaning data...")
     
@@ -60,24 +76,24 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
 
     visited_sites, tokens_per_date = content_analysis(imputed_data, mappings)
 
-    print(f"\n**************  Completed {data_source} history processing!  *********************\n")
+    print("Keyword analysis complete.\n")
 
-    save_to_csv(imputed_data, f'{directory}/output/{data_source.upper()}_processed.csv', mappings)
-    print(f"Processed data table results saved to '{directory}/output/{data_source.upper()}_processed.csv.csv'.\n")
+    save_to_csv(imputed_data, processed_save_path, mappings)
+    print(f"Processed data table results saved to {processed_save_path}.\n")
 
-    save_to_csv(metadata, f'{directory}/output/{data_source.upper()}_metadata.csv', ['Activity_Window_Start_Date', 'Activity_Window_Start_Index', 'Activity_Window_End_Index', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'])
-    print(f"Metadata saved to '{directory}/output/{data_source.upper()}_metadata.csv'.\n")
+    save_to_csv(metadata, metadata_save_path, ['Activity_Window_Start_Date', 'Activity_Window_Start_Index', 'Activity_Window_End_Index', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'])
+    print(f"Metadata saved to {metadata_save_path}.")
     
     if data_source == 'search':
-        save_to_csv(visited_sites, f'{directory}/output/{data_source.upper()}_visited_sites.csv', ['Date', 'Visited_Sites'])
-        print(f"Visited sites saved to '{directory}/output/{data_source.upper()}_visited_sites.csv'.\n")
+        save_to_csv(visited_sites, visited_sites_save_path, ['Date', 'Visited_Sites'])
+        print(f"Visited sites saved to {visited_sites_save_path}.")
 
-    save_to_csv(tokens_per_date, f'{directory}/output/{data_source.upper()}_keywords.csv', ['Date', 'Keywords'])
-    print(f'Tokens per date saved to {directory}/output/{data_source.upper()}_keywords.csv.\n')
+    save_to_csv(tokens_per_date, keywords_save_path, ['Date', 'Keywords'])
+    print(f'Tokens per date saved to {keywords_save_path}.\n')
 
+    ############################################################
 
-
-    print(f'Aggregating {data_source} data by day...\n')
+    print(f'\nAggregating {data_source} data by day...\n')
 
     aggregate_keywords = remove_unique_entries(tokens_per_date)
 
@@ -96,7 +112,7 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
     array_lists = [aggregated_data, aggregate_activity, aggregate_keywords]
     if data_source == 'search':
         array_lists.append(aggregated_sites)
-        sheet_names = ['Aggregated_Data', 'Aggregated_Activity', 'Aggregated_Keywords', 'Aggregated_Sites']
+        sheet_names = ['Time_Series', 'Activity', 'Keywords', 'Sites']
         column_name_lists = [
             ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day'],
             ['Activity_Window_Start_Date', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'],
@@ -107,12 +123,14 @@ def main(directory: str, input_file_name: str, mappings: List[str]) -> None:
         date_channel_array = (imputed_data[0], imputed_data[2])
         aggregated_channels = remove_unique_entries(date_channel_array)
         array_lists.append(aggregated_channels)
-        sheet_names = ['Aggregated_Data', 'Aggregated_Activity', 'Aggregated_Keywords', 'Aggregated_Channels']
+        sheet_names = ['Time_Series', 'Activity_Windows', 'Keywords', 'Channels']
         column_name_lists = [
             ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day'],
             ['Activity_Window_Start_Date', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'],
             ['Date', 'Keywords'], 
             ['Date', 'Channel_Title']]
 
-    write_arrays_to_excel(array_lists, column_name_lists, sheet_names, f'{directory}/output/{data_source.upper()}_Aggregation.xlsx')
-    print(f'Aggregated data saved to {directory}/output/{data_source.upper()}_Aggregation.xlsx.\n')
+    write_arrays_to_excel(array_lists, column_name_lists, sheet_names, agg_save_path)
+    print(f'Aggregated data saved to {agg_save_path}\n')
+
+    print(f"\n***********  Completed {data_source} history processing!  ******************\n")

@@ -102,8 +102,8 @@ def remove_unique_entries(data_tuple):
     # Find all unique values and their counts in the keyword array
     unique_keywords, counts = np.unique(keyword_array, return_counts=True)
     
-    # Filter out keywords that occur exactly once (unique)
-    non_unique_keywords = unique_keywords[counts > 1]
+    # Filter out keywords that occur less than  3 times
+    non_unique_keywords = unique_keywords[counts > 2]
     
     # Create a mask that is True for indices where the keyword is not unique
     mask = np.isin(keyword_array, non_unique_keywords)

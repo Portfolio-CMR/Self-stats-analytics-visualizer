@@ -3,8 +3,9 @@ from typing import List
 import pandas as pd
 from datetime import datetime
 import numpy as np
+from itertools import chain
 
-from self_stats.munger.input_output import create_output_directories, save_to_csv, write_arrays_to_excel
+from self_stats.munger.input_output import create_output_directories, save_to_csv, write_arrays_to_excel, write_arrays_to_single_excel
 from self_stats.munger.process_dates import trim_date
 from self_stats.munger.parse_and_process import main as parse_and_process
 from self_stats.munger.add_date_columns import main as add_date_columns
@@ -34,8 +35,8 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     metadata_save_path = path / f'{data_source.upper()}_metadata.csv'
     visited_sites_save_path = path / f'{data_source.upper()}_visited_sites.csv'
     keywords_save_path = path / f'{data_source.upper()}_keywords.csv'
-    agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_Agg.xlsx'
-    
+    agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}.xlsx'
+    single_agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_single_file.xlsx'
 
     directory_list = [outer_path, path, agg_dir]
     create_output_directories(directory_list)
@@ -50,12 +51,26 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     ############################################################
     # Optional injection of fake data for testing purposes
     ############################################################
-    fake_data = pd.read_csv(f'{directory}/output/full_data/{data_source.upper()}_fake.csv')
-    fake_data['Date'] = pd.to_datetime(fake_data['Date']).apply(lambda x: x.to_pydatetime())
-    date_objects = [date.to_pydatetime() for date in fake_data['Date']]
-    date_array = np.array(date_objects, dtype=object)
-    non_date_data = [fake_data[column].to_numpy() for column in mappings[1:]]
-    extracted_data = (date_array, *non_date_data)
+    # fake_data = pd.read_csv(f'{directory}/output/full_data/{data_source.upper()}_fake.csv')
+    # fake_data['Date'] = pd.to_datetime(fake_data['Date']).apply(lambda x: x.to_pydatetime())
+    # date_objects = [date.to_pydatetime() for date in fake_data['Date']]
+    # date_array = np.array(date_objects, dtype=object)
+    # non_date_data = [fake_data[column].to_numpy() for column in mappings[1:]]
+    # extracted_data = (date_array, *non_date_data)
+
+    # outer_path = directory / 'output_fake'
+    # path = outer_path / 'full_data'
+    # agg_dir = outer_path / 'aggregated_data'
+    # raw_save_path = path / f'{data_source.upper()}_raw.csv'
+    # processed_save_path = path / f'{data_source.upper()}_processed.csv'
+    # metadata_save_path = path / f'{data_source.upper()}_metadata.csv'
+    # visited_sites_save_path = path / f'{data_source.upper()}_visited_sites.csv'
+    # keywords_save_path = path / f'{data_source.upper()}_keywords.csv'
+    # agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}.xlsx'
+    # single_agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_single_file.xlsx'
+    
+    # directory_list = [outer_path, path, agg_dir]
+    # create_output_directories(directory_list)    
     ############################################################
 
     print("Cleaning data...")
@@ -110,6 +125,9 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     mappings = ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day']
     if data_source == 'watch':
         mappings.extend(['Short_Form_Ratio'])
+    
+    def flatten(xss):
+        return [x for xs in xss for x in xs]
 
     array_lists = [aggregated_data, aggregate_activity, aggregate_keywords]
     if data_source == 'search':
@@ -117,10 +135,14 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
         sheet_names = ['Time_Series', 'Activity', 'Keywords', 'Sites']
         column_name_lists = [
             ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day'],
-            ['Activity_Window_Start_Date', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'],
-            ['Date', 'Keywords'], 
-            ['Date', 'Visited_Sites']]
+            ['Date_Activity', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Actions_per_Minute'],
+            ['Date_Keywords', 'Keywords'], 
+            ['Date_Sites', 'Visited_Sites']]
         
+        combined_tuple = tuple(chain(aggregated_data, aggregate_activity, aggregate_keywords, aggregated_sites))
+        single_file_column_name_lists = flatten(column_name_lists)
+        single_file_column_types = ['date', 'float', 'str', 'float', 'date', 'float', 'float', 'float', 'date_time', 'str', 'date_time', 'str']
+
     if data_source == 'watch':
         date_channel_array = (imputed_data[0], imputed_data[2])
         aggregated_channels = remove_unique_entries(date_channel_array)
@@ -128,10 +150,15 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
         sheet_names = ['Time_Series', 'Activity_Windows', 'Keywords', 'Channels']
         column_name_lists = [
             ['Date', 'Record_Count', 'Day_of_the_Week', 'Most_Active_Hour_of_the_Day', 'Short_Form_Ratio'],
-            ['Activity_Window_Start_Date', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'],
-            ['Date', 'Keywords'], 
-            ['Date', 'Channel_Title']]
+            ['Date_Activity', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Actions_per_Minute'],
+            ['Date_Keywords', 'Keywords'], 
+            ['Date_Channel', 'Channel_Title']]
 
+        combined_tuple = tuple(chain(aggregated_data, aggregate_activity, aggregate_keywords, aggregated_channels))
+        single_file_column_name_lists = flatten(column_name_lists)
+        single_file_column_types = ['date', 'float', 'str', 'float', 'float', 'Date', 'float', 'float', 'float', 'date_time', 'str', 'date_time', 'str']
+    
+    write_arrays_to_single_excel(combined_tuple, single_file_column_name_lists, single_file_column_types, single_agg_save_path)
     write_arrays_to_excel(array_lists, column_name_lists, sheet_names, agg_save_path)
     print(f'Aggregated data saved to {agg_save_path}\n')
 

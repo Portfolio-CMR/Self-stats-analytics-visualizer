@@ -119,6 +119,43 @@ def write_arrays_to_excel(
             # Write the DataFrame to a named sheet in the Excel file
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
+def write_arrays_to_single_excel(
+    combined_tuple: Tuple[np.ndarray, ...], 
+    column_name_lists: List[str], 
+    column_types: List[str],
+    filename: Path
+) -> None:
+    """
+    Writes multiple arrays to an Excel file, each on a different sheet with specified column names.
+    
+    Parameters:
+    - combined_tuple (Tuple of np.array): A tuple of arrays.
+    - column_name_lists (list of str): Names for the columns corresponding to each array.
+    - filename (str): The filename for the output Excel file.
+    """
+    # Create a Pandas Excel writer using XlsxWriter as the engine
+    converted_arrays = []
+    for arr in combined_tuple:
+        converted_arrays.append(arr.astype(str))
+    with pd.ExcelWriter(filename, engine='xlsxwriter') as writer:
+        max_length = max(len(arr) for arr in combined_tuple)
+        data = {f'Column_{i}': np.pad(arr, (0, max_length - len(arr)), mode='constant', constant_values='') for i, arr in enumerate(converted_arrays)}
+        df = pd.DataFrame(data)
+        df.columns = column_name_lists
+
+        # Convert columns to specified types
+        for i, col_type in enumerate(column_types):
+            if col_type == 'date':
+                df[column_name_lists[i]] = pd.to_datetime(df[column_name_lists[i]], errors='coerce').dt.date
+            elif col_type == 'float':
+                df[column_name_lists[i]] = pd.to_numeric(df[column_name_lists[i]], errors='coerce')
+            # elif col_type == 'date_hour':
+            #     df[column_name_lists[i]] = pd.to_datetime(df[column_name_lists[i]], format='%H').dt.time
+            elif col_type == 'date_time':
+                df[column_name_lists[i]] = pd.to_datetime(df[column_name_lists[i]], errors='coerce')
+        
+        df.to_excel(writer, index=False)
+
 
 
 

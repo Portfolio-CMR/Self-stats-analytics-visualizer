@@ -21,7 +21,7 @@ def main() -> None:
 
         file_flags: dict = get_file_presence_flags(dir_path)
 
-        if file_flags['my_activity_present']:
+        if file_flags['my_activity_present']:+
             munger_main(dir_path, dir_path / 'MyActivity.json', [
                 'Date',
                 'Query_Text', 

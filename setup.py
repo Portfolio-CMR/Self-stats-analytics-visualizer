@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='self_stats',
-    version='0.0.2',
+    version='0.0.3',
     packages=find_packages(),
     install_requires=[
         "pandas==2.2.2",
@@ -15,6 +15,7 @@ setup(
         "spacy-legacy==3.0.12",
         "spacy-loggers==1.0.5",
         "urllib3==2.2.1",
+        "xlsxwriter==3.2.0",
     ],
     # Add additional metadata about your package
     author='Colton Robbins',

@@ -76,15 +76,17 @@ python -m self_stats
 
 ## Visualizing your data with Looker Studio
 
-1. Navigate to the [**Looker Studio Personal Analytics Demo Dashboard**](https://lookerstudio.google.com/reporting/b9d1af7a-8633-4415-80f1-a5a7cd360776).
-2. Select "more options" (three vertical dots) and then select "make a copy".
-3. Select "Copy Report" in the following prompt.
-4. You can now upload your data sources:
+1. Upload your data sources to Google Drive:
 
 - "SEARCH_collated.xlsx"
 - "WATCH_collated.xlsx"
 
-7. Right-click on any of the plots and click "Select" then click "charts with this data source on page".
+2. Once the files are uploaded, open them in Google Sheets and select "File" > "Save as Google Sheets". This will allow the files to be discoverable by Looker Studio.
+3. Navigate to the [**Looker Studio Personal Analytics Demo Dashboard**](https://lookerstudio.google.com/reporting/b9d1af7a-8633-4415-80f1-a5a7cd360776).
+4. Select "more options" (three vertical dots) and then select "make a copy".
+5. Select "Copy Report" in the following prompt.
+6. Click "Add Data", select Google Sheets as a data source and then select each file individually
+7. Once all data is added, right-click on any of the plots and click "Select" then click "charts with this data source on page".
 8. In the right sidebar, select your new data source for their respective dashboard pages.
 9. For the "Date range dimension" select "Date".
 10. The page should auto-update with your personal analytic data.

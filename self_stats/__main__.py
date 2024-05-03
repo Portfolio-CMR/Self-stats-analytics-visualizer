@@ -37,6 +37,19 @@ def main() -> None:
                 'Video_URL'
             ])
 
+    print(f"\n\n\n***********  All file processing completed!  ******************\n")
+    print(f"***********  Run through visualization instructions here  ************\n\n\n")
+
 if __name__ == "__main__":
 
     main()
+
+
+# # TODO
+
+# - Document directory names
+# - Make module docstrings
+# - Leave some more comments throughout the script
+# - Add logic to retain asset images in installed package
+#   - Add assets to package directory and explicitly call for them with a MANIFEST.in file
+#   - setup.py should include "package_data" element

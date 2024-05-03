@@ -28,6 +28,12 @@ Install this package using pip:
 pip install self_stats
 ```
 
+You will then need to install a word model from spacy for keyword analysis.
+
+```bash
+python3 -m spacy download en_core_web_sm
+```
+
 ### Data Preparation
 
 #### Downloading Your Data from Google Takeout
@@ -63,9 +69,26 @@ python -m self_stats
 
 ## Example Visualizations 📈
 
+![Example Dashboard](images/Dashboard_example.jpg)
+
 - **Time Series Analysis**: Analyze activity trends over time.
-- **Service Interaction Overview**: Understand how you use different Google services.
-- **Data Footprint Analysis**: Explore the volume and type of data stored across various services.
+- **Keyword Analysis**: Analyze popular topics that you query.
+
+## Visualizing your data with Looker Studio
+
+1. Navigate to the [**Looker Studio Personal Analytics Demo Dashboard**](https://lookerstudio.google.com/reporting/b9d1af7a-8633-4415-80f1-a5a7cd360776).
+2. Select "more options" (three vertical dots) and then select "make a copy".
+3. Select "Copy Report" in the following prompt.
+4. You can now upload your data sources:
+
+- "SEARCH_collated.xlsx"
+- "WATCH_collated.xlsx"
+
+7. Right-click on any of the plots and click "Select" then click "charts with this data source on page".
+8. In the right sidebar, select your new data source for their respective dashboard pages.
+9. For the "Date range dimension" select "Date".
+10. The page should auto-update with your personal analytic data.
+11. Remember not to share your dashboard once it has been modified with your data.
 
 ## Contributing 🤝
 
@@ -94,15 +117,3 @@ For support, feature requests, or to report bugs, please use the repository's is
 ## Why Choose Google Takeout Data Insights Visualizer?
 
 Our tool not only visualizes your data from Google Takeout but also provides a powerful platform to uncover and understand personal trends and usage statistics, empowering you with the knowledge to make informed decisions about your digital privacy and online habits.
-
-# TODO
-
-- Add plot titles
-- Label axis better
-- Add modules to the init files
-- Document directory names
-- Make module docstrings
-- Leave some more comments throughout the script
-- Add logic to retain asset images in installed package
-  - Add assets to package directory and explicitly call for them with a MANIFEST.in file
-  - setup.py should include "package_data" element

@@ -87,21 +87,21 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
 
     print("Data cleaning complete.\n")
     
-    print("Executing keyword analysis. This may take a moment...")
+    print("Executing keyword analysis. This may take a moment...\n")
 
     visited_sites, tokens_per_date = content_analysis(imputed_data, mappings)
 
     print("Keyword analysis complete.\n")
 
     save_to_csv(imputed_data, processed_save_path, mappings)
-    print(f"Processed data table results saved to {processed_save_path}.")
+    print(f"Processed data table results saved to {processed_save_path}.\n")
 
     save_to_csv(metadata, metadata_save_path, ['Activity_Window_Start_Date', 'Activity_Window_Start_Index', 'Activity_Window_End_Index', 'Activity_Window_Duration', 'Actions_per_Activity_Window', 'Approximate_Actions_per_Minute'])
-    print(f"Metadata saved to {metadata_save_path}.")
+    print(f"Metadata saved to {metadata_save_path}.\n")
     
     if data_source == 'search':
         save_to_csv(visited_sites, visited_sites_save_path, ['Date', 'Visited_Sites'])
-        print(f"Visited sites saved to {visited_sites_save_path}.")
+        print(f"Visited sites saved to {visited_sites_save_path}.\n")
 
     save_to_csv(tokens_per_date, keywords_save_path, ['Date', 'Keywords'])
     print(f'Tokens per date saved to {keywords_save_path}.\n')

@@ -15,7 +15,6 @@ setup(
         "spacy-legacy==3.0.12",
         "spacy-loggers==1.0.5",
         "urllib3==2.2.1",
-        "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl#sha256=86cc141f63942d4b2c5fcee06630fd6f904788d2f0ab005cce45aadb8fb73889"
     ],
     # Add additional metadata about your package
     author='Colton Robbins',

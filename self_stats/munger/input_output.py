@@ -154,7 +154,7 @@ def write_arrays_to_single_excel(
             elif col_type == 'date_time':
                 df[column_name_lists[i]] = pd.to_datetime(df[column_name_lists[i]], errors='coerce')
         
-        df.to_excel(writer, index=False)
+        df.to_excel(writer, sheet_name='_', index=False)
 
 
 

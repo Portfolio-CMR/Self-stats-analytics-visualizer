@@ -36,7 +36,7 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     visited_sites_save_path = path / f'{data_source.upper()}_visited_sites.csv'
     keywords_save_path = path / f'{data_source.upper()}_keywords.csv'
     agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}.xlsx'
-    single_agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_single_file.xlsx'
+    single_agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_collated.xlsx'
 
     directory_list = [outer_path, path, agg_dir]
     create_output_directories(directory_list)
@@ -67,7 +67,7 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
     # visited_sites_save_path = path / f'{data_source.upper()}_visited_sites.csv'
     # keywords_save_path = path / f'{data_source.upper()}_keywords.csv'
     # agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}.xlsx'
-    # single_agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_single_file.xlsx'
+    # single_agg_save_path = outer_path / 'aggregated_data' / f'{data_source.upper()}_collated.xlsx'
     
     # directory_list = [outer_path, path, agg_dir]
     # create_output_directories(directory_list)    
@@ -145,6 +145,7 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
 
     if data_source == 'watch':
         date_channel_array = (imputed_data[0], imputed_data[2])
+        short_form_array = (imputed_data[0], imputed_data[8]) 
         aggregated_channels = remove_unique_entries(date_channel_array)
         array_lists.append(aggregated_channels)
         sheet_names = ['Time_Series', 'Activity_Windows', 'Keywords', 'Channels']
@@ -154,9 +155,10 @@ def main(directory: Path, input_file_name: Path, mappings: List[str]) -> None:
             ['Date_Keywords', 'Keywords'], 
             ['Date_Channel', 'Channel_Title']]
 
-        combined_tuple = tuple(chain(aggregated_data, aggregate_activity, aggregate_keywords, aggregated_channels))
+        combined_tuple = tuple(chain(aggregated_data, aggregate_activity, aggregate_keywords, aggregated_channels, short_form_array))
         single_file_column_name_lists = flatten(column_name_lists)
-        single_file_column_types = ['date', 'float', 'str', 'float', 'float', 'Date', 'float', 'float', 'float', 'date_time', 'str', 'date_time', 'str']
+        single_file_column_name_lists.extend(['Date_Short_Form', 'Short_Form_Labels'])
+        single_file_column_types = ['date', 'float', 'str', 'float', 'float', 'Date', 'float', 'float', 'float', 'date_time', 'str', 'date_time', 'str', 'date_time', 'str']
     
     write_arrays_to_single_excel(combined_tuple, single_file_column_name_lists, single_file_column_types, single_agg_save_path)
     write_arrays_to_excel(array_lists, column_name_lists, sheet_names, agg_save_path)

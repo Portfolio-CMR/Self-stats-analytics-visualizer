@@ -58,7 +58,7 @@ python3 -m spacy download en_core_web_sm
 
 ### Usage
 
-Run the visualization tool with:
+Run the data processing tool with:
 
 ```bash
 python -m self_stats
@@ -115,7 +115,3 @@ This project is released under the MIT License - see the [LICENSE](LICENSE) file
 ## Support and Feedback 📝
 
 For support, feature requests, or to report bugs, please use the repository's issue tracker.
-
-## Why Choose Google Takeout Data Insights Visualizer?
-
-Our tool not only visualizes your data from Google Takeout but also provides a powerful platform to uncover and understand personal trends and usage statistics, empowering you with the knowledge to make informed decisions about your digital privacy and online habits.
